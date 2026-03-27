@@ -19,8 +19,8 @@ public class ClinicController {
     private final AppointmentService appointmentService;
 
     public ClinicController(DoctorService doctorService,
-                            SlotService slotService,
-                            AppointmentService appointmentService) {
+            SlotService slotService,
+            AppointmentService appointmentService) {
         this.doctorService = doctorService;
         this.slotService = slotService;
         this.appointmentService = appointmentService;
@@ -33,7 +33,7 @@ public class ClinicController {
 
     @PostMapping("/create-slot/{doctorId}")
     public Slot createSlot(@PathVariable Long doctorId,
-                           @RequestBody Slot slot) {
+            @RequestBody Slot slot) {
 
         return slotService.createSlot(doctorId, slot);
     }

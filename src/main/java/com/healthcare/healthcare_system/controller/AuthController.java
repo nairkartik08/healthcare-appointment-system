@@ -7,12 +7,14 @@ import com.healthcare.healthcare_system.service.AuthService;
 import jakarta.servlet.http.HttpServletRequest;
 
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
 
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
+@CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
@@ -21,7 +23,7 @@ public class AuthController {
     private final AuthenticationManager authenticationManager;
 
     public AuthController(AuthService authService,
-                          AuthenticationManager authenticationManager) {
+            AuthenticationManager authenticationManager) {
         this.authService = authService;
         this.authenticationManager = authenticationManager;
     }
@@ -32,8 +34,7 @@ public class AuthController {
         authService.register(
                 request.getUsername(),
                 request.getPassword(),
-                Role.valueOf(request.getRole().toUpperCase())
-        );
+                Role.valueOf(request.getRole().toUpperCase()));
 
         return "User Registered Successfully";
     }
@@ -44,9 +45,7 @@ public class AuthController {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         request.getUsername(),
-                        request.getPassword()
-                )
-        );
+                        request.getPassword()));
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
 

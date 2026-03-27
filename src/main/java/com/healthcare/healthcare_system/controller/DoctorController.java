@@ -1,24 +1,37 @@
 package com.healthcare.healthcare_system.controller;
 
-import com.healthcare.healthcare_system.model.MedicalRecord;
-import com.healthcare.healthcare_system.service.MedicalRecordService;
-
+import com.healthcare.healthcare_system.model.Doctor;
+import com.healthcare.healthcare_system.repository.DoctorRepository;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/doctor")
+@CrossOrigin(origins = "*")
 public class DoctorController {
 
-    private final MedicalRecordService medicalRecordService;
+    private final DoctorRepository doctorRepository;
 
-    public DoctorController(MedicalRecordService medicalRecordService) {
-        this.medicalRecordService = medicalRecordService;
+    public DoctorController(DoctorRepository doctorRepository) {
+        this.doctorRepository = doctorRepository;
     }
 
-    @PostMapping("/diagnosis/{appointmentId}")
-    public MedicalRecord addDiagnosis(@PathVariable Long appointmentId,
-                                      @RequestBody MedicalRecord record) {
+    // ✅ Get all doctors (optional duplicate endpoint)
+    @GetMapping("/doctors")
+    public List<Doctor> getDoctors() {
+        return doctorRepository.findAll();
+    }
 
-        return medicalRecordService.addDiagnosis(appointmentId, record);
+    // ✅ Get all doctors (main endpoint)
+    @GetMapping("/all")
+    public List<Doctor> getAllDoctors() {
+        return doctorRepository.findAll();
+    }
+
+    // ✅ Add doctor (THIS WAS BROKEN)
+    @PostMapping("/add")
+    public Doctor addDoctor(@RequestBody Doctor doctor) {
+        return doctorRepository.save(doctor);
     }
 }
