@@ -8,4 +8,5 @@ public interface DoctorService {
     Doctor addDoctor(Doctor doctor);
 
     List<Doctor> getAllDoctors();
+    List<Doctor> searchDoctors(String specialization);
 }

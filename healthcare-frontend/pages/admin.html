@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Clinic Dashboard - Healthcare Portal</title>
+    <title>Admin Dashboard - Healthcare Portal</title>
     <link rel="stylesheet" href="../css/styles.css">
     <!-- Chart.js for analytics -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -20,12 +20,13 @@
     <div class="dashboard-wrapper">
         <!-- Sidebar -->
         <aside class="sidebar">
-            <div class="brand clinic-brand">Clinic Portal</div>
+            <div class="brand clinic-brand">Admin Portal</div>
             <div class="nav-menu">
                 <div class="nav-item active" onclick="switchSection('overview')">📊 Analytics</div>
+                <div class="nav-item" onclick="switchSection('profile')">👤 Admin Profile</div>
                 <div class="nav-item" onclick="switchSection('appointments')">📅 Appointments</div>
-                <div class="nav-item" onclick="switchSection('patients')">👥 patient Directory</div>
-                <div class="nav-item" onclick="switchSection('doctors')">👨‍⚕️ Manage Staff</div>
+                <div class="nav-item" onclick="switchSection('patients')">👥 Patient Directory</div>
+                <div class="nav-item" onclick="switchSection('doctors')">👨‍⚕️ Manage Doctors</div>
                 <div class="nav-item" onclick="switchSection('billing')">💳 Billing / Revenue</div>
             </div>
             <button class="btn-primary" onclick="logout()" style="margin-top: auto; background: rgba(239,68,68,0.2) !important; color:#ef4444 !important; border: 1px solid #ef4444 !important;">Log Out</button>
@@ -65,6 +66,29 @@
                 <div class="glass-container" style="padding: 2rem; margin-top: 2rem;">
                     <h2 class="section-title">Revenue & Traffic Analytics (Placeholder)</h2>
                     <canvas id="revenueChart" width="400" height="150"></canvas>
+                </div>
+            </section>
+
+            <!-- Admin Profile Section -->
+            <section id="profile" class="dashboard-section">
+                <div class="glass-container" style="padding: 2.5rem; max-width: 600px;">
+                    <h2 class="section-title">Admin Profile</h2>
+                    <div class="input-group" style="margin-bottom: 1.5rem;">
+                        <label>Full Name</label>
+                        <input type="text" id="adminName" readonly />
+                    </div>
+                    <div class="input-group" style="margin-bottom: 1.5rem;">
+                        <label>Email Address</label>
+                        <input type="email" id="adminEmail" readonly />
+                    </div>
+                    <div class="input-group" style="margin-bottom: 1.5rem;">
+                        <label>Department</label>
+                        <input type="text" id="adminDepartment" readonly />
+                    </div>
+                    <div class="input-group" style="margin-bottom: 1.5rem;">
+                        <label>Contact Number</label>
+                        <input type="text" id="adminContact" readonly />
+                    </div>
                 </div>
             </section>
 
@@ -174,6 +198,6 @@
 
     <script src="../js/api.js"></script>
     <script src="../js/auth.js"></script>
-    <script src="../js/doctor.js"></script>
+    <script src="../js/admin.js"></script>
 </body>
 </html>

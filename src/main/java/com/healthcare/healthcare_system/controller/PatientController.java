@@ -50,9 +50,13 @@ public class PatientController {
     @PostMapping("/book")
     public Appointment bookAppointment(@RequestParam Long patientId,
                                        @RequestParam Long doctorId,
-                                       @RequestParam Long slotId) {
+                                       @RequestParam Long slotId,
+                                       @RequestParam(required = false) String name,
+                                       @RequestParam(required = false) Integer age,
+                                       @RequestParam(required = false) String mobileNo,
+                                       @RequestParam(required = false) String paymentMode) {
 
-        return appointmentService.bookAppointment(patientId, doctorId, slotId);
+        return appointmentService.bookAppointment(patientId, doctorId, slotId, name, age, mobileNo, paymentMode);
     }
 
     @PostMapping("/add")
@@ -100,5 +104,15 @@ public class PatientController {
 
         return appointmentService.completeAppointment(appointmentId);
 
+    }
+
+    @GetMapping("/user/{userId}")
+    public Patient getPatientByUserId(@PathVariable Long userId) {
+        return patientService.getPatientByUserId(userId);
+    }
+
+    @GetMapping("/all")
+    public List<Patient> getAllPatients() {
+        return patientService.getAllPatients();
     }
 }

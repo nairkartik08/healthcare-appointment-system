@@ -23,4 +23,12 @@ public class DoctorServiceImpl implements DoctorService {
     public List<Doctor> getAllDoctors() {
         return doctorRepository.findAll();
     }
+
+    @Override
+    public List<Doctor> searchDoctors(String specialization) {
+        if (specialization == null || specialization.isEmpty()) {
+            return doctorRepository.findAll();
+        }
+        return doctorRepository.findBySpecializationIgnoreCase(specialization);
+    }
 }

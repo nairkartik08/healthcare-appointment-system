@@ -10,4 +10,6 @@ public interface InvoiceService {
 
     List<Invoice> getPatientInvoices(Long patientId);
 
+    List<Invoice> getAllInvoices();
+
 }

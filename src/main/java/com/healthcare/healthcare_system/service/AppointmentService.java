@@ -5,7 +5,7 @@ import java.util.List;
 
 public interface AppointmentService {
 
-    Appointment bookAppointment(Long patientId, Long doctorId, Long slotId);
+    Appointment bookAppointment(Long patientId, Long doctorId, Long slotId, String name, Integer age, String mobileNo, String paymentMode);
 
     List<Appointment> getAllAppointments();
 

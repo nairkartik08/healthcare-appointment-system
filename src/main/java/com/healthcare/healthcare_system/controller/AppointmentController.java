@@ -17,15 +17,24 @@ public class AppointmentController {
     }
 
     @PostMapping("/{patientId}/{doctorId}")
-    public Appointment bookAppointment(@RequestParam Long patientId,
-                                       @RequestParam Long doctorId,
-                                       @RequestParam Long slotId) {
-        return appointmentService.bookAppointment(patientId, doctorId, slotId);
+    public Appointment bookAppointment(@PathVariable Long patientId,
+                                       @PathVariable Long doctorId,
+                                       @RequestParam Long slotId,
+                                       @RequestParam(required = false) String name,
+                                       @RequestParam(required = false) Integer age,
+                                       @RequestParam(required = false) String mobileNo,
+                                       @RequestParam(required = false) String paymentMode) {
+        return appointmentService.bookAppointment(patientId, doctorId, slotId, name, age, mobileNo, paymentMode);
     }
 
     @GetMapping
     public List<Appointment> getAllAppointments() {
         return appointmentService.getAllAppointments();
+    }
+
+    @GetMapping("/doctor/{doctorId}")
+    public List<Appointment> getDoctorAppointments(@PathVariable Long doctorId) {
+        return appointmentService.getDoctorAppointments(doctorId);
     }
 
     @PutMapping("/cancel/{id}")

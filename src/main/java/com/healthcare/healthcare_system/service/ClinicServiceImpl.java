@@ -29,4 +29,10 @@ public class ClinicServiceImpl implements ClinicService {
         return clinicRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Clinic not found"));
     }
+
+    @Override
+    public Clinic getClinicByUserId(Long userId) {
+        return clinicRepository.findByUserId(userId)
+                .orElseThrow(() -> new RuntimeException("Clinic not found for this user"));
+    }
 }

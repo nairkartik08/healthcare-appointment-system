@@ -1,10 +1,78 @@
-<h2>Login</h2>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Healthcare Portal - Login</title>
+    <link rel="stylesheet" href="../css/styles.css">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+</head>
+<body>
 
-<input id="username" placeholder="Username" />
-<input id="password" type="password" placeholder="Password" />
+    <div class="auth-wrapper">
+        <div class="auth-graphic">
+            <img src="../images/hero.png" alt="Digital Healthcare Abstract" class="auth-graphic-img">
+            <div class="auth-graphic-overlay"></div>
+            <div class="auth-headline glass-container">
+                <h1>Healthcare<br>Portal</h1>
+                <p>Welcome to the future of medical appointments.</p>
+            </div>
+        </div>
 
-<button onclick="login()">Login</button>
+        <div class="auth-form-container">
+            <div class="auth-card glass-container">
+                <h2>Welcome Back</h2>
+                <p class="subtitle">Securely sign in to your healthcare profile.</p>
 
-<p><a href="register.html">Register</a></p>
+                <div class="input-group">
+                    <label>Username</label>
+                    <input type="text" id="username" placeholder="Enter your username" />
+                </div>
+                
+                <div class="input-group">
+                    <label>Password</label>
+                    <input type="password" id="password" placeholder="Enter your password" />
+                </div>
 
-<script src="../js/auth.js"></script>
+                <button class="btn-primary" onclick="login()">Log In Securely</button>
+
+                <p class="text-center" style="margin-top: 1rem;">
+                    Don't have an account? <a href="register.html">Register here</a>
+                </p>
+                
+                <div id="errorMsg" class="status-msg error-msg" style="margin-top: 1rem; display: none;"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/api.js?v=2"></script>
+    <script src="../js/auth.js?v=2"></script>
+    <script>
+        // Slightly update the display of errors to handle display:none toggling
+        const originalLogin = login;
+        window.login = async function() {
+            const errorMsg = document.getElementById("errorMsg");
+            errorMsg.style.display = 'none';
+            errorMsg.classList.remove('show');
+            
+            // Watch changes in auth.js logic - intercepting the error assignment to show the box
+            const observer = new MutationObserver((mutations) => {
+                mutations.forEach((mutation) => {
+                    if (mutation.type === 'childList') {
+                        if (errorMsg.textContent.trim() !== "") {
+                            errorMsg.style.display = 'flex';
+                            setTimeout(() => errorMsg.classList.add('show'), 10);
+                        } else {
+                            errorMsg.style.display = 'none';
+                            errorMsg.classList.remove('show');
+                        }
+                    }
+                });
+            });
+            observer.observe(errorMsg, { childList: true });
+            
+            await originalLogin();
+        };
+    </script>
+</body>
+</html>

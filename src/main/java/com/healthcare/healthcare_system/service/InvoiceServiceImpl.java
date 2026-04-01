@@ -37,7 +37,14 @@ public class InvoiceServiceImpl implements InvoiceService {
         invoice.setDoctor(appointment.getDoctor());
         invoice.setPatient(appointment.getPatient());
         invoice.setAmount(appointment.getDoctor().getConsultationFee());
-        invoice.setStatus("UNPAID");
+        
+        // Auto-mark as PAID if paid online during booking
+        String mode = appointment.getPaymentMode();
+        if ("UPI".equalsIgnoreCase(mode) || "CARD".equalsIgnoreCase(mode) || "CARDS".equalsIgnoreCase(mode)) {
+            invoice.setStatus("PAID");
+        } else {
+            invoice.setStatus("UNPAID");
+        }
 
         return invoiceRepository.save(invoice);
     }
@@ -46,5 +53,10 @@ public class InvoiceServiceImpl implements InvoiceService {
     public List<Invoice> getPatientInvoices(Long patientId) {
 
         return invoiceRepository.findByPatientId(patientId);
+    }
+
+    @Override
+    public List<Invoice> getAllInvoices() {
+        return invoiceRepository.findAll();
     }
 }

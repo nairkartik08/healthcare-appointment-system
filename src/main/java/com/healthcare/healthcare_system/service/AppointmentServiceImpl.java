@@ -35,10 +35,24 @@ public class AppointmentServiceImpl implements AppointmentService {
     @Override
     public Appointment bookAppointment(Long patientId,
                                        Long doctorId,
-                                       Long slotId) {
+                                       Long slotId,
+                                       String name,
+                                       Integer age,
+                                       String mobileNo,
+                                       String paymentMode) {
 
         Patient patient = patientRepository.findById(patientId)
                 .orElseThrow();
+
+        // Update patient profile if new info was provided
+        boolean profileUpdated = false;
+        if (name != null && !name.trim().isEmpty()) { patient.setName(name); profileUpdated = true; }
+        if (age != null) { patient.setAge(age); profileUpdated = true; }
+        if (mobileNo != null && !mobileNo.trim().isEmpty()) { patient.setMobileNo(mobileNo); profileUpdated = true; }
+        
+        if (profileUpdated) {
+            patientRepository.save(patient);
+        }
 
         Doctor doctor = doctorRepository.findById(doctorId)
                 .orElseThrow();
@@ -59,8 +73,18 @@ public class AppointmentServiceImpl implements AppointmentService {
         appointment.setDoctor(doctor);
         appointment.setSlot(slot);
         appointment.setStatus(AppointmentStatus.BOOKED);
+        appointment.setPaymentMode(paymentMode);
 
-        return appointmentRepository.save(appointment);
+        Appointment savedAppointment = appointmentRepository.save(appointment);
+
+        // Simulated Automated Notification
+        System.out.println("====== AUTOMATED NOTIFICATION ======");
+        System.out.println("To: " + patient.getEmail());
+        System.out.println("Subject: Appointment Confirmation");
+        System.out.println("Your appointment with Dr. " + doctor.getName() + " is confirmed for " + slot.getStartTime());
+        System.out.println("====================================");
+
+        return savedAppointment;
     }
 
     @Override

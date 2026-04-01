@@ -10,4 +10,6 @@ public interface ClinicService {
     List<Clinic> getAllClinics();
 
     Clinic getClinicById(Long id);
+
+    Clinic getClinicByUserId(Long userId);
 }

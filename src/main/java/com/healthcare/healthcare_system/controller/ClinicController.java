@@ -10,6 +10,9 @@ import java.util.List;
 
 import org.springframework.web.bind.annotation.*;
 
+import com.healthcare.healthcare_system.service.ClinicService;
+import com.healthcare.healthcare_system.model.Clinic;
+
 @RestController
 @RequestMapping("/clinic")
 public class ClinicController {
@@ -17,13 +20,16 @@ public class ClinicController {
     private final DoctorService doctorService;
     private final SlotService slotService;
     private final AppointmentService appointmentService;
+    private final ClinicService clinicService;
 
     public ClinicController(DoctorService doctorService,
             SlotService slotService,
-            AppointmentService appointmentService) {
+            AppointmentService appointmentService,
+            ClinicService clinicService) {
         this.doctorService = doctorService;
         this.slotService = slotService;
         this.appointmentService = appointmentService;
+        this.clinicService = clinicService;
     }
 
     @PostMapping("/add-doctor")
@@ -43,4 +49,8 @@ public class ClinicController {
         return appointmentService.getAllAppointments();
     }
 
+    @GetMapping("/user/{userId}")
+    public Clinic getClinicByUserId(@PathVariable Long userId) {
+        return clinicService.getClinicByUserId(userId);
+    }
 }

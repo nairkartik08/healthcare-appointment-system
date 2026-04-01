@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Doctor Dashboard - Healthcare Portal</title>
+    <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+    <div class="dashboard-wrapper">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="brand">Doctor Portal</div>
+            <div class="nav-menu">
+                <div class="nav-item active" onclick="switchSection('overview')">📊 Overview</div>
+                <div class="nav-item" onclick="switchSection('profile')">👤 Doctor Profile</div>
+                <div class="nav-item" onclick="switchSection('appointments')">📅 My Appointments</div>
+                <div class="nav-item" onclick="switchSection('slots')">⏰ My Available Slots</div>
+                <div class="nav-item" onclick="switchSection('patients')">👥 My Patients</div>
+            </div>
+            <button class="btn-primary" onclick="logout()" style="margin-top: auto; background: rgba(239,68,68,0.2) !important; color:#ef4444 !important; border: 1px solid #ef4444 !important;">Log Out</button>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="dashboard-header">
+                <h1>Welcome, Dr. <span id="headerDoctorName">Loading...</span></h1>
+                <div class="user-profile-badge">
+                    <span>Doctor</span>
+                </div>
+            </header>
+
+            <!-- Overview Section -->
+            <section id="overview" class="dashboard-section active">
+                <div class="dashboard-grid">
+                    <div class="metric-card glass-container">
+                        <h3>Today's Appointments</h3>
+                        <div class="value" id="metricsTodayAppts">0</div>
+                    </div>
+                    <div class="metric-card glass-container">
+                        <h3>Total Earnings</h3>
+                        <div class="value" style="color: var(--success-color)">₹ <span id="metricsRevenue">0</span></div>
+                    </div>
+                    <div class="metric-card glass-container">
+                        <h3>Total Patients Seen</h3>
+                        <div class="value" id="metricsPatients">0</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Doctor Profile Section -->
+            <section id="profile" class="dashboard-section">
+                <div class="glass-container" style="padding: 2.5rem; max-width: 800px;">
+                    <h2 class="section-title">My Profile</h2>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                        <div class="input-group">
+                            <label>Full Name</label>
+                            <input type="text" id="docName" readonly />
+                        </div>
+                        <div class="input-group">
+                            <label>Email Address</label>
+                            <input type="text" id="docEmail" readonly />
+                        </div>
+                        <div class="input-group">
+                            <label>Mobile Number</label>
+                            <input type="text" id="docMobile" readonly />
+                        </div>
+                        <div class="input-group">
+                            <label>Gender</label>
+                            <input type="text" id="docGender" readonly />
+                        </div>
+                        <div class="input-group">
+                            <label>Specialization</label>
+                            <input type="text" id="docSpec" readonly />
+                        </div>
+                        <div class="input-group">
+                            <label>Qualification</label>
+                            <input type="text" id="docQual" readonly />
+                        </div>
+                        <div class="input-group">
+                            <label>Experience (Years)</label>
+                            <input type="text" id="docExp" readonly />
+                        </div>
+                        <div class="input-group">
+                            <label>License Number</label>
+                            <input type="text" id="docLicense" readonly />
+                        </div>
+                        <div class="input-group">
+                            <label>Hospital Name</label>
+                            <input type="text" id="docHospital" readonly />
+                        </div>
+                        <div class="input-group">
+                            <label>Consultation Fee (₹)</label>
+                            <input type="text" id="docFee" readonly />
+                        </div>
+                        <div class="input-group" style="grid-column: span 2;">
+                            <label>Clinic Address</label>
+                            <input type="text" id="docAddress" readonly />
+                        </div>
+                        <div class="input-group">
+                            <label>Available Days</label>
+                            <input type="text" id="docDays" readonly />
+                        </div>
+                        <div class="input-group">
+                            <label>Available Slots</label>
+                            <input type="text" id="docSlots" readonly />
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Appointments Section -->
+            <section id="appointments" class="dashboard-section">
+                <div class="glass-container" style="padding: 2rem;">
+                    <h2 class="section-title">My Appointments</h2>
+                    <div style="overflow-x: auto;">
+                        <table id="appointmentsTable">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Patient Details</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td colspan="4" class="text-center">Loading...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Slots Section -->
+            <section id="slots" class="dashboard-section">
+                <div class="glass-container" style="padding: 2rem; max-width: 500px">
+                    <h2 class="section-title">Manage My Slots</h2>
+                    
+                    <div class="input-group" style="margin-top: 1rem;">
+                        <label>Date</label>
+                        <input type="date" id="slotDate">
+                    </div>
+                    <div class="input-group" style="margin-top: 1rem;">
+                        <label>Start Time</label>
+                        <input type="time" id="slotStartTime">
+                    </div>
+                    <div style="margin-top: 1.5rem;">
+                        <button class="btn-primary" onclick="createSlot()">Create Slot</button>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- My Patients Placeholder -->
+            <section id="patients" class="dashboard-section">
+                <div class="glass-container" style="padding: 2rem;">
+                    <h2 class="section-title">My Patients (Coming Soon)</h2>
+                    <p class="text-muted">A dedicated module for managing medical records and prescriptions for your specific patients.</p>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <script src="../js/api.js"></script>
+    <script src="../js/auth.js"></script>
+    <script src="../js/doctor.js"></script>
+</body>
+</html>

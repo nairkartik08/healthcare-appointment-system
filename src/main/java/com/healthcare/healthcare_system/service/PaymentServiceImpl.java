@@ -27,6 +27,7 @@ public class PaymentServiceImpl implements PaymentService {
                 .orElseThrow();
 
         invoice.setStatus("PAID");
+        invoiceRepository.save(invoice);
 
         Payment payment = new Payment();
         payment.setInvoice(invoice);

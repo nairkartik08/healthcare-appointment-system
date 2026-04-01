@@ -29,9 +29,23 @@ public class DoctorController {
         return doctorRepository.findAll();
     }
 
+    // ✅ Search doctors by specialization
+    @GetMapping("/search")
+    public List<Doctor> searchDoctors(@RequestParam(required = false) String specialty) {
+        if (specialty == null || specialty.trim().isEmpty()) {
+            return doctorRepository.findAll();
+        }
+        return doctorRepository.findBySpecializationIgnoreCase(specialty);
+    }
+
     // ✅ Add doctor (THIS WAS BROKEN)
     @PostMapping("/add")
     public Doctor addDoctor(@RequestBody Doctor doctor) {
         return doctorRepository.save(doctor);
+    }
+
+    @GetMapping("/user/{userId}")
+    public Doctor getDoctorByUserId(@PathVariable Long userId) {
+        return doctorRepository.findByUserId(userId).orElse(null);
     }
 }

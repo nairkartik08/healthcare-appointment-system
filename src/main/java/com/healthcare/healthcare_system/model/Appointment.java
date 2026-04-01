@@ -21,6 +21,9 @@ public class Appointment {
     @Enumerated(EnumType.STRING)
     private AppointmentStatus status;
 
+    @Column(name = "payment_mode")
+    private String paymentMode;
+
     public Appointment() {}
 
     public Long getId() { return id; }
@@ -36,4 +39,7 @@ public class Appointment {
 
     public AppointmentStatus getStatus() { return status; }
     public void setStatus(AppointmentStatus status) { this.status = status; }
+
+    public String getPaymentMode() { return paymentMode; }
+    public void setPaymentMode(String paymentMode) { this.paymentMode = paymentMode; }
 }

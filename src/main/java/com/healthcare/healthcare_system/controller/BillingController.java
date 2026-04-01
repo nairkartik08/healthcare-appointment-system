@@ -28,4 +28,9 @@ public class BillingController {
 
         return invoiceService.getPatientInvoices(patientId);
     }
+
+    @GetMapping("/all")
+    public List<Invoice> getAllInvoices() {
+        return invoiceService.getAllInvoices();
+    }
 }

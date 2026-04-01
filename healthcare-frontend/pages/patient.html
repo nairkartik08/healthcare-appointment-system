@@ -1,8 +1,223 @@
-<h2>Patient Dashboard</h2>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patient Dashboard - Healthcare Portal</title>
+    <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+    <div class="dashboard-wrapper">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="brand">Healthcare Portal</div>
+            <div class="nav-menu">
+                <div class="nav-item active" onclick="switchSection('overview')">🩺 Overview</div>
+                <div class="nav-item" onclick="switchSection('profile')">👤 My Profile</div>
+                <div class="nav-item" onclick="switchSection('appointments')">📅 Appointments</div>
+                <div class="nav-item" onclick="switchSection('doctors')">👨‍⚕️ Find Doctors</div>
+                <div class="nav-item" onclick="switchSection('records')">📂 Medical Records</div>
+            </div>
+            <button class="btn-primary" onclick="logout()" style="margin-top: auto; background: rgba(239,68,68,0.2) !important; color:#ef4444 !important; border: 1px solid #ef4444 !important;">Log Out</button>
+        </aside>
 
-<button onclick="viewDoctors()">View Doctors</button>
-<button onclick="logout()">Logout</button>
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="dashboard-header">
+                <h1>Welcome, <span id="headerPatientName">Loading...</span></h1>
+                <div class="user-profile-badge">
+                    <span>Patient Portal</span>
+                </div>
+            </header>
 
-<div id="doctorList"></div>
+            <!-- Overview Section -->
+            <section id="overview" class="dashboard-section active">
+                <div class="dashboard-grid">
+                    <div class="metric-card glass-container">
+                        <h3>Upcoming Appointments</h3>
+                        <div class="value" id="metricsAppointments">0</div>
+                    </div>
+                    <div class="metric-card glass-container">
+                        <h3>Pending Bills</h3>
+                        <div class="value" style="color: var(--danger-color)">₹ 0</div>
+                    </div>
+                    <div class="metric-card glass-container">
+                        <h3>Medical Reports</h3>
+                        <div class="value" id="metricsReports">0</div>
+                    </div>
+                    <div class="metric-card glass-container">
+                        <h3>Active Prescriptions</h3>
+                        <div class="value">0</div>
+                    </div>
+                </div>
 
-<script src="../js/patient.js"></script>
+                <div class="glass-container" style="padding: 2rem;">
+                    <h2 class="section-title">Quick Actions</h2>
+                    <div style="display: flex; gap: 1rem;">
+                        <button class="btn-primary" style="width: auto; margin-top: 0;" onclick="switchSection('doctors')">Book New Appointment</button>
+                        <button class="btn-outline btn-small" onclick="switchSection('records')" style="padding: 1rem 1.5rem; font-size: 1.15rem;">View Recent Reports</button>
+                    </div>
+                </div>
+            </section>
+
+            <section id="profile" class="dashboard-section">
+                <div class="glass-container" style="padding: 2.5rem; max-width: 600px;">
+                    <h2 class="section-title">My Profile Details</h2>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                        <div class="input-group" style="margin-bottom: 1.5rem;">
+                            <label>Full Name</label>
+                            <input type="text" id="profileName" />
+                        </div>
+                        <div class="input-group" style="margin-bottom: 1.5rem;">
+                            <label>Email Address</label>
+                            <input type="email" id="profileEmail" readonly style="opacity: 0.7;" />
+                        </div>
+                        <div class="input-group" style="margin-bottom: 1.5rem;">
+                            <label>Mobile Number</label>
+                            <input type="tel" id="profileMobile" />
+                        </div>
+                        <div class="input-group" style="margin-bottom: 1.5rem;">
+                            <label>Gender</label>
+                            <input type="text" id="profileGender" readonly style="opacity: 0.7;" />
+                        </div>
+                        <div class="input-group" style="margin-bottom: 1.5rem;">
+                            <label>Date of Birth</label>
+                            <input type="text" id="profileDob" readonly style="opacity: 0.7;" />
+                        </div>
+                        <div class="input-group" style="margin-bottom: 1.5rem;">
+                            <label>Blood Group</label>
+                            <input type="text" id="profileBloodGroup" />
+                        </div>
+                        <div class="input-group" style="margin-bottom: 1.5rem; grid-column: span 2;">
+                            <label>Address</label>
+                            <input type="text" id="profileAddress" />
+                        </div>
+                        <div class="input-group" style="margin-bottom: 1.5rem;">
+                            <label>Emergency Contact</label>
+                            <input type="tel" id="profileEmergency" />
+                        </div>
+                        <div class="input-group" style="margin-bottom: 1.5rem;">
+                            <label>Insurance Provider</label>
+                            <input type="text" id="profileInsurance" />
+                        </div>
+                        <div class="input-group" style="margin-bottom: 1.5rem; grid-column: span 2;">
+                            <label>Diseases / Allergies</label>
+                            <textarea id="profileDiseases" rows="2"></textarea>
+                        </div>
+                    </div>
+                    <button class="btn-primary" onclick="updateProfile()">Save Changes</button>
+                    <div id="profileStatusMsg" class="status-msg" style="margin-top: 1rem; display: none;"></div>
+                </div>
+            </section>
+
+            <!-- Appointments Section -->
+            <section id="appointments" class="dashboard-section">
+                <div class="glass-container" style="padding: 2rem;">
+                    <h2 class="section-title">My Appointments</h2>
+                    <div style="overflow-x: auto;">
+                        <table id="appointmentsTable">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Doctor</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td colspan="4" class="text-center">Loading appointments...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Find Doctors Section -->
+            <section id="doctors" class="dashboard-section">
+                <div style="display: flex; gap: 1rem; margin-bottom: 2rem;">
+                    <div class="input-group" style="flex: 1;">
+                        <input type="text" id="doctorSearchInput" placeholder="Search by Specialization (e.g., Cardiologist)" onkeyup="filterDoctors()" style="background: var(--glass-bg);">
+                    </div>
+                </div>
+                <div class="dashboard-grid" id="doctorsGrid">
+                    <!-- Doctors injected here via JS -->
+                </div>
+            </section>
+
+            <!-- Medical Records Placeholder -->
+            <section id="records" class="dashboard-section">
+                 <div class="dashboard-grid">
+                    <div class="glass-container" style="padding: 2rem;">
+                        <h2 class="section-title" style="color: var(--accent-color)">Test Reports & Diagnosis</h2>
+                        <ul id="patientReportsList" style="list-style: none; display: flex; flex-direction: column; gap: 1rem;">
+                            <!-- Dynamically loaded -->
+                        </ul>
+                    </div>
+                     <div class="glass-container" style="padding: 2rem;">
+                        <h2 class="section-title" style="color: var(--success-color)">Active Prescriptions</h2>
+                        <ul id="patientPrescriptionsList" style="list-style: none; display: flex; flex-direction: column; gap: 1rem;">
+                           <!-- Dynamically loaded -->
+                        </ul>
+                    </div>
+                 </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- Booking Modal Placeholders -->
+    <!-- Booking Modal Wizard -->
+    <div id="bookingModal" class="glass-container" style="display:none; position: fixed; top: 0; bottom: 0; left: 0; right: 0; margin: auto; height: max-content; z-index: 100; padding: 2.5rem; width: 450px; background: rgba(15, 23, 42, 0.98); border: 1px solid var(--glass-border); box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);">
+        
+        <!-- Step 1: Slot Selection -->
+        <div id="bookingStep1">
+            <h2>Select Appointment Slot</h2>
+            <div class="subtitle" id="bookingDoctorName" style="margin-bottom: 1.5rem; color: var(--accent-light);"></div>
+            <div id="slotsContainer" style="display: flex; flex-direction: column; gap: 0.8rem; max-height: 250px; overflow-y: auto; margin-bottom: 1.5rem; padding-right: 0.5rem;">
+                <!-- Slots injected here -->
+            </div>
+            <input type="hidden" id="bookingDoctorId">
+            <input type="hidden" id="bookingSlotId">
+            <div style="display: flex; gap: 1rem;">
+                <button class="btn-outline btn-small" onclick="closeBookingModal()" style="width: 100%;">Cancel</button>
+            </div>
+        </div>
+
+        <!-- Step 2: Patient Details -->
+        <div id="bookingStep2" style="display: none;">
+            <h2>Confirm Basic Details</h2>
+            <div class="subtitle" style="margin-bottom: 1.5rem; color: var(--text-muted);">Please verify your information for this booking.</div>
+            
+            <div class="input-group" style="margin-bottom: 1rem;">
+                <label>Full Name</label>
+                <input type="text" id="bookingName">
+            </div>
+            <div style="display: flex; gap: 1rem; margin-bottom: 1rem;">
+                <div class="input-group" style="flex: 1;">
+                    <label>Age</label>
+                    <input type="number" id="bookingAge">
+                </div>
+                <div class="input-group" style="flex: 2;">
+                    <label>Mobile No.</label>
+                    <input type="tel" id="bookingMobile" placeholder="+91">
+                </div>
+            </div>
+            <div class="input-group" style="margin-bottom: 1.5rem;">
+                <label>Email Address</label>
+                <input type="email" id="bookingEmail">
+            </div>
+
+            <div style="display: flex; gap: 1rem;">
+                <button class="btn-primary" onclick="proceedToPayment()" style="width: 100%;">Continue to Payment</button>
+                <button class="btn-outline btn-small" onclick="goToStep(1)">Back</button>
+            </div>
+        </div>
+
+
+    </div>
+
+    <script src="../js/api.js"></script>
+    <script src="../js/auth.js"></script>
+    <script src="../js/patient.js"></script>
+</body>
+</html>
