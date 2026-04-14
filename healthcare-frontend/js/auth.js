@@ -1,11 +1,11 @@
 async function login() {
-  const username = document.getElementById("username").value;
+  const email = document.getElementById("email").value;
   const password = document.getElementById("password").value;
   const errorMsg = document.getElementById("errorMsg");
 
   errorMsg.textContent = "";
 
-  if (!username || !password) {
+  if (!email || !password) {
     errorMsg.textContent = "Please fill in all fields";
     return;
   }
@@ -13,7 +13,7 @@ async function login() {
   try {
     const res = await apiFetch("/auth/login", {
       method: "POST",
-      body: JSON.stringify({ username, password }),
+      body: JSON.stringify({ email, password }),
     });
 
     // The backend now returns a JSON with { token, userId, username, role }
@@ -43,11 +43,11 @@ async function login() {
 
 async function submitRegistration() {
   const role = document.getElementById("role").value;
-  const username = document.getElementById("username").value.trim();
+  const email = document.getElementById("email").value.trim();
+  const username = email; // Backend also uses this natively
   const password = document.getElementById("password").value;
   const confirmPassword = document.getElementById("confirmPassword").value;
   const fullName = document.getElementById("fullName").value.trim();
-  const email = document.getElementById("email").value.trim();
   const mobileNumber = document.getElementById("mobileNumber").value.trim();
   const gender = document.getElementById("gender").value;
   
@@ -57,8 +57,14 @@ async function submitRegistration() {
   errorMsg.textContent = "";
   successMsg.textContent = "";
 
-  if (!username || !password || !fullName || !email) {
-    errorMsg.textContent = "Please fill in all core details (Username, Full Name, Email, Password).";
+  if (!email || !password || !fullName) {
+    errorMsg.textContent = "Please fill in all core details (Full Name, Email, Password).";
+    return;
+  }
+
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email)) {
+    errorMsg.textContent = "Please enter a valid, well-formed email address.";
     return;
   }
 
@@ -116,15 +122,49 @@ async function submitRegistration() {
       body: JSON.stringify(payload),
     });
 
-    successMsg.textContent = "Registration successful! You can now log in.";
+    successMsg.textContent = "OTP sent to your email! Please verify.";
     
-    setTimeout(() => {
-      window.location.href = "login.html";
-    }, 2000);
+    // Hide registration fields and show OTP field
+    document.getElementById("registrationForm").style.display = "none";
+    document.getElementById("registerBtn").style.display = "none";
+    document.getElementById("loginLinkTxt").style.display = "none";
+    document.getElementById("otp-section").style.display = "block";
 
   } catch (err) {
     console.error(err);
     errorMsg.textContent = err.message || "Registration failed";
+  }
+}
+
+async function verifyOtp() {
+  const email = document.getElementById("email").value.trim();
+  const otp = document.getElementById("otpCode").value.trim();
+  const errorMsg = document.getElementById("errorMsg");
+  const successMsg = document.getElementById("successMsg");
+
+  errorMsg.textContent = "";
+  successMsg.textContent = "";
+
+  if (!otp) {
+    errorMsg.textContent = "Please enter the OTP.";
+    return;
+  }
+
+  try {
+    const resText = await apiFetch("/auth/verify-otp", {
+      method: "POST",
+      body: JSON.stringify({ email, otp }),
+    });
+
+    successMsg.textContent = "Account verified successfully! Redirecting...";
+    
+    setTimeout(() => {
+      window.location.href = `login.html?email=${encodeURIComponent(email)}`;
+    }, 2000);
+
+  } catch (err) {
+    console.error(err);
+    errorMsg.textContent = err.message || "OTP Verification failed";
   }
 }
 

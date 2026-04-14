@@ -81,6 +81,8 @@
                 <h2>Create Account</h2>
                 <p class="subtitle">Set up your secure healthcare profile.</p>
 
+                <div id="registrationForm">
+
                 <div class="input-group">
                     <label>Registration Type</label>
                     <select id="role" onchange="toggleRoleFields()">
@@ -97,15 +99,9 @@
                     <input type="text" id="fullName" placeholder="Enter full name" />
                 </div>
                 
-                <div class="form-row">
-                    <div class="input-group">
-                        <label>Username</label>
-                        <input type="text" id="username" placeholder="Choose username" autocomplete="off" />
-                    </div>
-                    <div class="input-group">
-                        <label>Email</label>
-                        <input type="email" id="email" placeholder="example@email.com" />
-                    </div>
+                <div class="input-group">
+                    <label>Email Address</label>
+                    <input type="email" id="email" placeholder="example@email.com" />
                 </div>
 
                 <div class="form-row">
@@ -263,9 +259,23 @@
                     </div>
                 </div>
 
-                <button class="btn-primary" onclick="submitRegistration()" style="margin-top: 1.5rem;">Create Account</button>
+                </div>
+                <button id="registerBtn" class="btn-primary" onclick="submitRegistration()" style="margin-top: 1.5rem;">Create Account</button>
 
-                <p class="text-center" style="margin-top: 1rem;">
+                <div id="otp-section" style="display: none; margin-top: 1rem;">
+                    <div class="section-title">Verify your Email</div>
+                    <p class="subtitle" style="font-size: 0.85rem; margin-bottom: 1rem;">We've sent a 6-digit code to your email.</p>
+                    <div class="input-group">
+                        <label>OTP Code</label>
+                        <input type="text" id="otpCode" placeholder="Enter 6-digit OTP" autocomplete="off" />
+                    </div>
+                    <button class="btn-primary" onclick="verifyOtp()" style="margin-top: 1rem;">Verify Account</button>
+                    <p class="text-center" style="margin-top: 1rem; font-size: 0.85rem;">
+                        <a href="#" onclick="location.reload()">Cancel Registration</a>
+                    </p>
+                </div>
+
+                <p id="loginLinkTxt" class="text-center" style="margin-top: 1rem;">
                     Already configured? <a href="login.html">Log in here</a>
                 </p>
                 
@@ -275,8 +285,8 @@
         </div>
     </div>
 
-    <script src="../js/api.js?v=3"></script>
-    <script src="../js/auth.js?v=3"></script>
+    <script src="../js/api.js?v=7"></script>
+    <script src="../js/auth.js?v=7"></script>
     <script>
         function toggleRoleFields() {
             const role = document.getElementById("role").value;

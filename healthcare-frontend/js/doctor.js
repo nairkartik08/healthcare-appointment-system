@@ -98,10 +98,18 @@ async function loadDoctorAppointments() {
         // Simple distinct patients logic
         const patientSet = new Set();
         let totalRevenue = 0;
+        const today = new Date().toDateString();
+        
         appState.appointments.forEach(a => {
             if(a.patient) patientSet.add(a.patient.id);
-            if(a.status === 'COMPLETED' || a.status === 'PAID') {
-                totalRevenue += (a.doctor ? a.doctor.consultationFee : 0);
+            
+            // Calculate today's earnings
+            const appDateStr = a.slot && a.slot.startTime ? new Date(a.slot.startTime).toDateString() : '';
+            if (appDateStr === today) {
+                const mode = (a.paymentMode || '').toUpperCase();
+                if(a.status === 'COMPLETED' || mode === 'CARD' || mode === 'UPI') {
+                    totalRevenue += (a.doctor ? a.doctor.consultationFee : 0);
+                }
             }
         });
         
@@ -127,9 +135,25 @@ function renderAppointments() {
         const tr = document.createElement('tr');
         
         let statusBadge = app.status;
-        if(app.status === 'SCHEDULED') statusBadge = `<span style="color: var(--primary-color)">SCHEDULED</span>`;
+        if(app.status === 'BOOKED') statusBadge = `<span style="color: var(--primary-color)">BOOKED</span>`;
         if(app.status === 'CANCELLED') statusBadge = `<span style="color: var(--danger-color)">CANCELLED</span>`;
         if(app.status === 'COMPLETED') statusBadge = `<span style="color: var(--success-color)">COMPLETED</span>`;
+
+        let formattedDateTime = '-';
+        if (app.slot && app.slot.startTime) {
+            const dateObj = new Date(app.slot.startTime);
+            const formattedDate = dateObj.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+            const formattedTime = dateObj.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+            formattedDateTime = `<div><strong style="color:var(--text-main)">${formattedDate}</strong></div><div style="font-size:0.85rem; color:var(--text-muted); margin-top:2px;">${formattedTime}</div>`;
+        }
+
+        let paymentStatusHtml = '';
+        const pMode = (app.paymentMode || '').toUpperCase();
+        if(pMode === 'CARD' || pMode === 'UPI') {
+            paymentStatusHtml = `<div style="font-size:0.85rem; margin-top: 4px; color: var(--success-color)">Paid</div>`;
+        } else {
+            paymentStatusHtml = `<div style="font-size:0.85rem; margin-top: 4px; color: var(--danger-color)">Not Paid (Clinic)</div>`;
+        }
 
         tr.innerHTML = `
             <td>#${app.id}</td>
@@ -139,14 +163,79 @@ function renderAppointments() {
                      ${app.patient && app.patient.mobileNo ? '📞 '+app.patient.mobileNo : ''}
                  </div>
             </td>
-            <td>${statusBadge}</td>
+            <td>${formattedDateTime}</td>
+            <td>${statusBadge}${paymentStatusHtml}</td>
             <td style="display: flex; gap: 0.5rem;">
-                ${app.status === 'SCHEDULED' ? `<button class="btn-outline btn-success btn-small" onclick="approveAppointment(${app.id})">Complete</button>` : ''}
-                ${app.status === 'SCHEDULED' ? `<button class="btn-outline btn-danger btn-small" onclick="cancelAppointmentAdmin(${app.id})">Cancel</button>` : '-'}
+                ${app.status === 'BOOKED' ? `<button class="btn-outline btn-success btn-small" onclick="openCompletionModal(${app.id})">Complete</button>` : ''}
+                ${app.status === 'BOOKED' ? `<button class="btn-outline btn-danger btn-small" onclick="cancelAppointmentAdmin(${app.id})">Cancel</button>` : '-'}
             </td>
         `;
         tbody.appendChild(tr);
     });
+}
+
+function openCompletionModal(id) {
+    const app = appState.appointments.find(a => a.id === id);
+    const patientName = app && app.patient ? app.patient.name : 'Unknown';
+
+    document.getElementById('modalApptId').value = id;
+    document.getElementById('modalPatientName').textContent = patientName;
+    
+    // Reset Form
+    document.getElementById('recordDiagnosis').value = '';
+    document.getElementById('recordSymptoms').value = '';
+    document.getElementById('recordTreatment').value = '';
+    document.getElementById('prescMedicine').value = '';
+    document.getElementById('prescDosage').value = '';
+    document.getElementById('prescDuration').value = '';
+
+    document.getElementById('completionModal').style.display = "flex";
+}
+
+function closeCompletionModal() {
+    document.getElementById('completionModal').style.display = "none";
+}
+
+async function submitCompletion() {
+    const id = document.getElementById('modalApptId').value;
+    if(!id) return;
+
+    // Record Data
+    const diagnosis = document.getElementById('recordDiagnosis').value.trim();
+    const symptoms = document.getElementById('recordSymptoms').value.trim();
+    const treatment = document.getElementById('recordTreatment').value.trim();
+
+    // Prescription Data
+    const medicineName = document.getElementById('prescMedicine').value.trim();
+    const dosage = document.getElementById('prescDosage').value.trim();
+    const duration = document.getElementById('prescDuration').value.trim();
+
+    try {
+        if (diagnosis || symptoms || treatment) {
+            await apiFetch(`/records/diagnosis/${id}`, {
+                method: 'POST',
+                body: JSON.stringify({ diagnosis, symptoms, treatment })
+            });
+        }
+
+        if (medicineName || dosage || duration) {
+            await apiFetch(`/prescriptions/add/${id}`, {
+                method: 'POST',
+                body: JSON.stringify({ medicineName, dosage, duration })
+            });
+        }
+
+        // Mark as Complete
+        await apiFetch(`/patient/complete/${id}`, { method: 'PUT' });
+        
+        closeCompletionModal();
+        await loadDoctorAppointments();
+        alert("Appointment completed successfully!");
+
+    } catch (err) {
+        console.error("Failed to complete appointment:", err);
+        alert("Failed to submit data. Please check connection and try again.");
+    }
 }
 
 async function createSlot() {
@@ -171,15 +260,7 @@ async function createSlot() {
     }
 }
 
-async function approveAppointment(appointmentId) {
-    try {
-        await apiFetch(`/patient/complete/${appointmentId}`, { method: 'PUT' });
-        await loadDoctorAppointments();
-    } catch(err) {
-        console.error(err);
-        alert("Action failed.");
-    }
-}
+// approveAppointment logic was folded into submitCompletion() over openCompletionModal()
 
 async function cancelAppointmentAdmin(appointmentId) {
     if(!confirm("Cancel this appointment?")) return;

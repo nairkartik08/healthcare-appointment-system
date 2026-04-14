@@ -27,6 +27,7 @@ public class AuthServiceImpl implements AuthService {
     private final DoctorRepository doctorRepository;
     private final AdminRepository adminRepository;
     private final org.springframework.jdbc.core.JdbcTemplate jdbcTemplate;
+    private final EmailService emailService;
 
     public AuthServiceImpl(UserRepository userRepository,
                            BCryptPasswordEncoder passwordEncoder,
@@ -34,7 +35,8 @@ public class AuthServiceImpl implements AuthService {
                            ClinicRepository clinicRepository,
                            DoctorRepository doctorRepository,
                            AdminRepository adminRepository,
-                           org.springframework.jdbc.core.JdbcTemplate jdbcTemplate) {
+                           org.springframework.jdbc.core.JdbcTemplate jdbcTemplate,
+                           EmailService emailService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.patientRepository = patientRepository;
@@ -42,6 +44,7 @@ public class AuthServiceImpl implements AuthService {
         this.doctorRepository = doctorRepository;
         this.adminRepository = adminRepository;
         this.jdbcTemplate = jdbcTemplate;
+        this.emailService = emailService;
     }
 
     @jakarta.annotation.PostConstruct
@@ -49,12 +52,21 @@ public class AuthServiceImpl implements AuthService {
         try {
             jdbcTemplate.execute("ALTER TABLE users DROP CONSTRAINT IF EXISTS users_role_check");
             System.out.println("✅ SUCCESSFULLY CLEARED OBSOLETE 'users_role_check' CONSTRAINT FROM POSTGRESQL.");
+            try {
+                jdbcTemplate.execute("ALTER TABLE users ADD COLUMN is_verified boolean DEFAULT false");
+                jdbcTemplate.execute("ALTER TABLE users ADD COLUMN otp_code varchar(255)");
+                jdbcTemplate.execute("ALTER TABLE users ADD COLUMN otp_expiry_time timestamp");
+                System.out.println("✅ ADDED missing columns for OTP feature to POSTGRESQL.");
+            } catch (Exception e) {
+                System.out.println("⚠️ Columns might already exist: " + e.getMessage());
+            }
         } catch (Exception e) {
             System.out.println("⚠️ Could not drop constraint, it might not exist: " + e.getMessage());
         }
     }
 
     @Override
+    @org.springframework.transaction.annotation.Transactional
     public User register(RegisterRequest request) {
 
         if (userRepository.findByUsername(request.getUsername()).isPresent()) {
@@ -72,8 +84,14 @@ public class AuthServiceImpl implements AuthService {
 
         User user = new User();
         user.setUsername(request.getUsername());
+        user.setEmail(request.getEmail());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setRole(role);
+        
+        user.setVerified(false);
+        String otp = String.format("%06d", new java.util.Random().nextInt(999999));
+        user.setOtpCode(otp);
+        user.setOtpExpiryTime(java.time.LocalDateTime.now().plusMinutes(10));
 
         user = userRepository.save(user);
 
@@ -128,6 +146,38 @@ public class AuthServiceImpl implements AuthService {
             adminRepository.save(admin);
         }
 
+        System.out.println("==================================================");
+        System.out.println("🔐 ATTEMPTING TO SEND OTP FOR " + request.getEmail() + " : " + otp);
+        System.out.println("==================================================");
+
+        // This will now throw an exception if SMTP credentials are wrong, which rolls back the entire transaction!
+        emailService.sendOtpEmail(request.getEmail(), otp);
+
         return user;
+    }
+
+    @Override
+    public String verifyOtp(com.healthcare.healthcare_system.dto.OtpVerificationRequest request) {
+        User user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new RuntimeException("User not found with email: " + request.getEmail()));
+
+        if (user.isVerified()) {
+            return "User is already verified.";
+        }
+
+        if (user.getOtpExpiryTime() == null || user.getOtpExpiryTime().isBefore(java.time.LocalDateTime.now())) {
+            throw new RuntimeException("OTP has expired. Please request a new one.");
+        }
+
+        if (!user.getOtpCode().equals(request.getOtp())) {
+            throw new RuntimeException("Invalid OTP Code.");
+        }
+
+        user.setVerified(true);
+        user.setOtpCode(null);
+        user.setOtpExpiryTime(null);
+        userRepository.save(user);
+
+        return "Email verified successfully.";
     }
 }

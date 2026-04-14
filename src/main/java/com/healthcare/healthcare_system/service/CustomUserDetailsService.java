@@ -18,12 +18,16 @@ public class CustomUserDetailsService implements UserDetailsService {
     }
 
     @Override
-    public UserDetails loadUserByUsername(String username)
+    public UserDetails loadUserByUsername(String emailOrUsername)
             throws UsernameNotFoundException {
 
-        User user = userRepository.findByUsername(username)
+        User user = userRepository.findByUsernameOrEmail(emailOrUsername, emailOrUsername)
                 .orElseThrow(() ->
-                        new UsernameNotFoundException("User not found"));
+                        new UsernameNotFoundException("User not found: " + emailOrUsername));
+
+        if (!user.isVerified()) {
+            throw new org.springframework.security.authentication.DisabledException("Email not verified. Please verify your OTP.");
+        }
 
         return new org.springframework.security.core.userdetails.User(
                 user.getUsername(),

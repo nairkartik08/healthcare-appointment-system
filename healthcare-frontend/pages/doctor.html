@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Doctor Dashboard - Healthcare Portal</title>
     <link rel="stylesheet" href="../css/styles.css">
 </head>
+
 <body>
     <div class="dashboard-wrapper">
         <!-- Sidebar -->
@@ -18,7 +20,9 @@
                 <div class="nav-item" onclick="switchSection('slots')">⏰ My Available Slots</div>
                 <div class="nav-item" onclick="switchSection('patients')">👥 My Patients</div>
             </div>
-            <button class="btn-primary" onclick="logout()" style="margin-top: auto; background: rgba(239,68,68,0.2) !important; color:#ef4444 !important; border: 1px solid #ef4444 !important;">Log Out</button>
+            <button class="btn-primary" onclick="logout()"
+                style="margin-top: auto; background: rgba(239,68,68,0.2) !important; color:#ef4444 !important; border: 1px solid #ef4444 !important;">Log
+                Out</button>
         </aside>
 
         <!-- Main Content -->
@@ -34,12 +38,13 @@
             <section id="overview" class="dashboard-section active">
                 <div class="dashboard-grid">
                     <div class="metric-card glass-container">
-                        <h3>Today's Appointments</h3>
+                        <h3>My Appointments</h3>
                         <div class="value" id="metricsTodayAppts">0</div>
                     </div>
                     <div class="metric-card glass-container">
                         <h3>Total Earnings</h3>
-                        <div class="value" style="color: var(--success-color)">₹ <span id="metricsRevenue">0</span></div>
+                        <div class="value" style="color: var(--success-color)">₹ <span id="metricsRevenue">0</span>
+                        </div>
                     </div>
                     <div class="metric-card glass-container">
                         <h3>Total Patients Seen</h3>
@@ -52,7 +57,7 @@
             <section id="profile" class="dashboard-section">
                 <div class="glass-container" style="padding: 2.5rem; max-width: 800px;">
                     <h2 class="section-title">My Profile</h2>
-                    
+
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
                         <div class="input-group">
                             <label>Full Name</label>
@@ -120,12 +125,15 @@
                                 <tr>
                                     <th>ID</th>
                                     <th>Patient Details</th>
+                                    <th>Date & Time</th>
                                     <th>Status</th>
                                     <th>Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr><td colspan="4" class="text-center">Loading...</td></tr>
+                                <tr>
+                                    <td colspan="5" class="text-center">Loading...</td>
+                                </tr>
                             </tbody>
                         </table>
                     </div>
@@ -136,7 +144,7 @@
             <section id="slots" class="dashboard-section">
                 <div class="glass-container" style="padding: 2rem; max-width: 500px">
                     <h2 class="section-title">Manage My Slots</h2>
-                    
+
                     <div class="input-group" style="margin-top: 1rem;">
                         <label>Date</label>
                         <input type="date" id="slotDate">
@@ -150,14 +158,62 @@
                     </div>
                 </div>
             </section>
-            
+
             <!-- My Patients Placeholder -->
             <section id="patients" class="dashboard-section">
                 <div class="glass-container" style="padding: 2rem;">
                     <h2 class="section-title">My Patients (Coming Soon)</h2>
-                    <p class="text-muted">A dedicated module for managing medical records and prescriptions for your specific patients.</p>
+                    <p class="text-muted">A dedicated module for managing medical records and prescriptions for your
+                        specific patients.</p>
                 </div>
             </section>
+
+            <!-- Appointment Completion Modal -->
+            <div id="completionModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1000; justify-content: center; align-items: center;">
+                <div class="glass-container" style="padding: 2.5rem; width: 90%; max-width: 600px; max-height: 90vh; overflow-y: auto;">
+                    <h2 class="section-title" style="margin-bottom: 0.5rem;">Complete Appointment</h2>
+                    <p class="text-muted" style="margin-bottom: 1.5rem;">Fill out the medical record and prescription for Patient: <strong id="modalPatientName" style="color: var(--text-main)">...</strong></p>
+                    
+                    <input type="hidden" id="modalApptId" />
+                    
+                    <h3 style="color: var(--primary-color); font-size: 1.1rem; margin-bottom: 1rem;">Medical Record</h3>
+                    <div class="input-group" style="margin-bottom: 1rem;">
+                        <label>Diagnosis</label>
+                        <input type="text" id="recordDiagnosis" placeholder="e.g. Viral Fever" />
+                    </div>
+                    <div class="form-row" style="margin-bottom: 1.5rem;">
+                        <div class="input-group">
+                            <label>Symptoms</label>
+                            <input type="text" id="recordSymptoms" placeholder="e.g. Cough, High Temp" />
+                        </div>
+                        <div class="input-group">
+                            <label>Treatment</label>
+                            <input type="text" id="recordTreatment" placeholder="e.g. Rest, Hydration" />
+                        </div>
+                    </div>
+
+                    <h3 style="color: var(--primary-color); font-size: 1.1rem; margin-bottom: 1rem;">Prescription</h3>
+                    <div class="input-group" style="margin-bottom: 1rem;">
+                        <label>Medicine Name</label>
+                        <input type="text" id="prescMedicine" placeholder="e.g. Paracetamol 500mg" />
+                    </div>
+                    <div class="form-row" style="margin-bottom: 1.5rem;">
+                        <div class="input-group">
+                            <label>Dosage</label>
+                            <input type="text" id="prescDosage" placeholder="e.g. 1-0-1 (Morning & Night)" />
+                        </div>
+                        <div class="input-group">
+                            <label>Duration</label>
+                            <input type="text" id="prescDuration" placeholder="e.g. 5 Days" />
+                        </div>
+                    </div>
+
+                    <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+                        <button class="btn-outline" style="flex: 1;" onclick="closeCompletionModal()">Cancel</button>
+                        <button class="btn-primary" style="flex: 1; margin: 0;" onclick="submitCompletion()">Submit & Complete</button>
+                    </div>
+                </div>
+            </div>
 
         </main>
     </div>
@@ -166,4 +222,5 @@
     <script src="../js/auth.js"></script>
     <script src="../js/doctor.js"></script>
 </body>
+
 </html>

@@ -18,8 +18,19 @@ public class User {
     @Column(unique = true)
     private String username;
 
+    @Column(unique = true)
+    private String email;
+
     private String password;
 
     @Enumerated(EnumType.STRING)
     private Role role;
+
+    private boolean isVerified = false;
+
+    @Column(name = "otp_code")
+    private String otpCode;
+
+    @Column(name = "otp_expiry_time")
+    private java.time.LocalDateTime otpExpiryTime;
 }

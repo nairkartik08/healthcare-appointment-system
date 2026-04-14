@@ -184,7 +184,7 @@ function renderAppointments() {
         const tr = document.createElement('tr');
         
         let statusBadge = app.status;
-        if(app.status === 'SCHEDULED') statusBadge = `<span style="color: var(--primary-color)">SCHEDULED</span>`;
+        if(app.status === 'BOOKED') statusBadge = `<span style="color: var(--primary-color)">BOOKED</span>`;
         if(app.status === 'CANCELLED') statusBadge = `<span style="color: var(--danger-color)">CANCELLED</span>`;
         if(app.status === 'COMPLETED') statusBadge = `<span style="color: var(--success-color)">COMPLETED</span>`;
 
@@ -193,7 +193,7 @@ function renderAppointments() {
             <td>Dr. ${app.doctor ? app.doctor.name : 'Unknown'}</td>
             <td>${statusBadge}</td>
             <td>
-                ${app.status === 'SCHEDULED' ? `<button class="btn-outline btn-danger btn-small" onclick="cancelAppointment(${app.id})">Cancel</button>` : '-'}
+                ${app.status === 'BOOKED' ? `<button class="btn-outline btn-danger btn-small" onclick="cancelAppointment(${app.id})">Cancel</button>` : '-'}
             </td>
         `;
         tbody.appendChild(tr);

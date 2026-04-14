@@ -25,8 +25,8 @@
                 <p class="subtitle">Securely sign in to your healthcare profile.</p>
 
                 <div class="input-group">
-                    <label>Username</label>
-                    <input type="text" id="username" placeholder="Enter your username" />
+                    <label>Email</label>
+                    <input type="email" id="email" placeholder="Enter your email" />
                 </div>
                 
                 <div class="input-group">
@@ -45,8 +45,8 @@
         </div>
     </div>
 
-    <script src="../js/api.js?v=2"></script>
-    <script src="../js/auth.js?v=2"></script>
+    <script src="../js/api.js?v=5"></script>
+    <script src="../js/auth.js?v=5"></script>
     <script>
         // Slightly update the display of errors to handle display:none toggling
         const originalLogin = login;
@@ -73,6 +73,18 @@
             
             await originalLogin();
         };
+
+        // Pre-fill email from registration if available
+        document.addEventListener("DOMContentLoaded", () => {
+            const params = new URLSearchParams(window.location.search);
+            const passedEmail = params.get("email");
+            if (passedEmail) {
+                const emailInput = document.getElementById("email");
+                if (emailInput) {
+                    emailInput.value = passedEmail;
+                }
+            }
+        });
     </script>
 </body>
 </html>

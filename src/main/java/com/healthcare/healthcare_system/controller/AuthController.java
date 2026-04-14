@@ -42,31 +42,41 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public String register(@RequestBody RegisterRequest request) {
+    public ResponseEntity<String> register(@RequestBody RegisterRequest request) {
 
         authService.register(request);
 
-        return "User Registered Successfully";
+        return ResponseEntity.ok("OTP sent to your email. Please verify.");
+    }
+
+    @PostMapping("/verify-otp")
+    public ResponseEntity<String> verifyOtp(@RequestBody com.healthcare.healthcare_system.dto.OtpVerificationRequest request) {
+        try {
+            String message = authService.verifyOtp(request);
+            return ResponseEntity.ok(message);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest request) {
 
-        System.out.println("\n🔥 [DEBUG] Login attempt received for username: '" + request.getUsername() + "'");
+        System.out.println("\n🔥 [DEBUG] Login attempt received for email: '" + request.getEmail() + "'");
         System.out.println("🔥 [DEBUG] Password length entered: " + (request.getPassword() != null ? request.getPassword().length() : 0));
 
         Authentication authentication;
         try {
             authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
-                            request.getUsername(),
+                            request.getEmail(),
                             request.getPassword()));
             
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
-            System.out.println("✅ [DEBUG] Authentication succeeded for: " + request.getUsername());
+            System.out.println("✅ [DEBUG] Authentication succeeded for: " + request.getEmail());
         } catch (org.springframework.security.core.AuthenticationException e) {
-            System.out.println("❌ [DEBUG] Authentication failed for: " + request.getUsername() + " | Error: " + e.getMessage());
+            System.out.println("❌ [DEBUG] Authentication failed for: " + request.getEmail() + " | Error: " + e.getMessage());
             throw e;
         }
 
@@ -75,12 +85,13 @@ public class AuthController {
                 .findFirst()
                 .orElse("UNKNOWN");
 
-        String token = jwtUtil.generateToken(request.getUsername(), role);
+        String token = jwtUtil.generateToken(request.getEmail(), role);
 
-        User user = userRepository.findByUsername(request.getUsername()).orElse(null);
+        User user = userRepository.findByUsernameOrEmail(request.getEmail(), request.getEmail()).orElse(null);
         Long userId = user != null ? user.getId() : null;
+        String username = user != null ? user.getUsername() : request.getEmail();
 
-        LoginResponse response = new LoginResponse(token, userId, request.getUsername(), role);
+        LoginResponse response = new LoginResponse(token, userId, username, role);
         return ResponseEntity.ok(response);
     }
 }
