@@ -61,46 +61,74 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest request) {
-
-        System.out.println("\n🔥 [DEBUG] Login attempt received for email: '" + request.getEmail() + "'");
-        System.out.println("🔥 [DEBUG] Password length entered: " + (request.getPassword() != null ? request.getPassword().length() : 0));
+        System.out.println("\n--- 🟢 [LOGIN START] ---");
+        System.out.println("👉 Attempting login for email: [" + request.getEmail() + "]");
 
         Authentication authentication;
         try {
+            System.out.println("🔄 Step 1: AuthenticationManager.authenticate()...");
             authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
                             request.getEmail(),
                             request.getPassword()));
             
             SecurityContextHolder.getContext().setAuthentication(authentication);
+            System.out.println("✅ Step 1: Authentication Successful");
 
-            System.out.println("✅ [DEBUG] Authentication succeeded for: " + request.getEmail());
         } catch (org.springframework.security.core.AuthenticationException e) {
-            System.out.println("❌ [DEBUG] Authentication failed for: " + request.getEmail() + " | Error: " + e.getMessage());
+            System.out.println("❌ Step 1: Authentication Failed | Message: " + e.getMessage());
             throw e;
+        } catch (Throwable t) {
+            System.err.println("🚨 CRITICAL ERROR during Step 1: " + t.getMessage());
+            t.printStackTrace();
+            throw new RuntimeException("Internal error during authentication: " + t.getMessage());
         }
 
-        String role = authentication.getAuthorities().stream()
-                .map(GrantedAuthority::getAuthority)
-                .findFirst()
-                .orElse("UNKNOWN");
+        try {
+            System.out.println("🔄 Step 2: Extracting Roles...");
+            String role = authentication.getAuthorities().stream()
+                    .map(GrantedAuthority::getAuthority)
+                    .findFirst()
+                    .orElse("UNKNOWN");
+            System.out.println("✅ Step 2: Role detected: " + role);
 
-        String token = jwtUtil.generateToken(request.getEmail(), role);
+            System.out.println("🔄 Step 3: Generating JWT Token...");
+            String token = jwtUtil.generateToken(request.getEmail(), role);
+            if (token == null) throw new RuntimeException("JWT generation returned null");
+            System.out.println("✅ Step 3: Token generated");
 
-        User user = userRepository.findByUsernameOrEmail(request.getEmail(), request.getEmail()).orElse(null);
-        
-        if (user == null) {
-            throw new RuntimeException("User data could not be retrieved. Please contact support.");
+            System.out.println("🔄 Step 4: Re-fetching user from DB for response metadata...");
+            User user = userRepository.findByUsernameOrEmail(request.getEmail(), request.getEmail()).orElse(null);
+            
+            if (user == null) {
+                System.out.println("❌ Step 4 Failed: User not found in DB after auth!");
+                throw new RuntimeException("System error: Authenticated user not found in database.");
+            }
+
+            if ("PENDING_APPROVAL".equals(user.getApprovalStatus())) {
+                System.out.println("❌ Step 4: Account PENDING_APPROVAL");
+                throw new RuntimeException("Your account is pending admin approval. Please check back later.");
+            }
+            System.out.println("✅ Step 4: User verified and approved");
+            
+            Long userId = user.getId();
+            String username = user.getUsername();
+
+            System.out.println("🔄 Step 5: Preparing LoginResponse...");
+            LoginResponse response = new LoginResponse(token, userId, username, role);
+            System.out.println("🏁 [LOGIN SUCCESS] for: " + username);
+            System.out.println("------------------------\n");
+            
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            System.err.println("🚨 ERROR during Post-Auth steps: " + e.getMessage());
+            e.printStackTrace();
+            throw e;
+        } catch (Throwable t) {
+            System.err.println("🚨 CRITICAL SYSTEM ERROR during Post-Auth: " + t.getMessage());
+            t.printStackTrace();
+            throw new RuntimeException("Critical system error: " + t.getMessage());
         }
-
-        if ("PENDING_APPROVAL".equals(user.getApprovalStatus())) {
-            throw new RuntimeException("Your account is pending admin approval. Please check back later.");
-        }
-        
-        Long userId = user.getId();
-        String username = user.getUsername();
-
-        LoginResponse response = new LoginResponse(token, userId, username, role);
-        return ResponseEntity.ok(response);
     }
 }

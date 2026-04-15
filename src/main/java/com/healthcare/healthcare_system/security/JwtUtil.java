@@ -44,8 +44,17 @@ public class JwtUtil {
     }
 
     public String generateToken(String username, String role) {
+        if (username == null || username.trim().isEmpty()) {
+            System.err.println("❌ [JwtUtil] Cannot generate token: Username is NULL or empty");
+            throw new IllegalArgumentException("Username cannot be null for token generation");
+        }
+        
+        String safeRole = (role != null) ? role : "ROLE_PATIENT";
+        
+        System.out.println("🎟️ [JwtUtil] Generating token for: " + username + " with role: " + safeRole);
+        
         Map<String, Object> claims = new HashMap<>();
-        claims.put("role", role);
+        claims.put("role", safeRole);
         return createToken(claims, username);
     }
 
