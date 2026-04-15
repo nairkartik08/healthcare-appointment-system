@@ -25,9 +25,12 @@ public class CustomUserDetailsService implements UserDetailsService {
                 .orElseThrow(() ->
                         new UsernameNotFoundException("User not found: " + emailOrUsername));
 
+        // Temporarily bypass verification check so you can log in immediately
+        /*
         if (!user.isVerified()) {
             throw new org.springframework.security.authentication.DisabledException("Email not verified. Please verify your OTP.");
         }
+        */
 
         return new org.springframework.security.core.userdetails.User(
                 user.getUsername(),

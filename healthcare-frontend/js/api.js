@@ -22,15 +22,25 @@ async function apiFetch(endpoint, options = {}) {
   });
 
   if (!response.ok) {
+    let errorMessage = `API Error: ${response.status}`;
+    try {
+      const errorData = await response.json();
+      errorMessage = errorData.message || errorMessage;
+    } catch (e) {
+      // Fallback if not JSON
+      try {
+        const text = await response.text();
+        if (text) errorMessage = text;
+      } catch (err) {}
+    }
+
     if (response.status === 401 || response.status === 403) {
-      localStorage.clear();
       if (endpoint !== "/auth/login" && endpoint !== "/auth/register") {
+        localStorage.clear();
         window.location.href = "login.html";
       }
-      throw new Error("Unauthorized - Session expired or Invalid Credentials");
     }
-    const errorText = await response.text();
-    throw new Error(errorText || `API Error: ${response.status}`);
+    throw new Error(errorMessage);
   }
 
   // Allow parsing text or json
