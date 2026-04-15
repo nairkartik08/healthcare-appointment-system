@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NexCare - Future of Healthcare</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        /* Specific Landing Page Styles */
+        body {
+            overflow-x: hidden;
+        }
+
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem 4rem;
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 100;
+            background: rgba(11, 15, 25, 0.7);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        .navbar .brand {
+            margin: 0;
+            font-size: 1.8rem;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 1.5rem;
+            align-items: center;
+        }
+
+        .hero-section {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8rem 4rem 4rem 4rem;
+            position: relative;
+        }
+
+        .hero-content {
+            flex: 1;
+            max-width: 600px;
+            z-index: 2;
+            animation: slideInRight 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        .hero-content h1 {
+            font-size: 4.5rem;
+            font-weight: 700;
+            line-height: 1.1;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(135deg, #0ea5e9, #8b5cf6, #fbcfe8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero-content p {
+            font-size: 1.25rem;
+            color: var(--text-muted);
+            margin-bottom: 2.5rem;
+            line-height: 1.6;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .hero-graphic {
+            flex: 1;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1;
+        }
+
+        /* Abstract glowing spheres for visual wow factor */
+        .glow-sphere {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.5;
+            animation: float 8s ease-in-out infinite;
+        }
+
+        .sphere-1 {
+            width: 400px;
+            height: 400px;
+            background: var(--primary-color);
+            top: -100px;
+            right: 0;
+            animation-delay: 0s;
+        }
+
+        .sphere-2 {
+            width: 300px;
+            height: 300px;
+            background: var(--accent-color);
+            bottom: -50px;
+            left: 100px;
+            animation-delay: 2s;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            padding: 4rem;
+            position: relative;
+            z-index: 2;
+        }
+
+        .feature-card {
+            padding: 2.5rem;
+            text-align: center;
+            transition: all 0.4s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 25px 50px rgba(14, 165, 233, 0.2);
+            border-color: rgba(14, 165, 233, 0.4);
+        }
+
+        .feature-icon {
+            font-size: 3rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .feature-card h3 {
+            font-size: 1.4rem;
+            margin-bottom: 1rem;
+            color: #fff;
+        }
+
+        .feature-card p {
+            color: var(--text-muted);
+            line-height: 1.5;
+        }
+
+        /* Ambient floating elements */
+        .floating-card {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(15px);
+            border: 1px solid var(--glass-border);
+            padding: 1rem 1.5rem;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+            animation: float 6s ease-in-out infinite;
+            z-index: 10;
+        }
+
+        .fc-1 {
+            top: 20%;
+            right: 10%;
+            animation-delay: 0s;
+        }
+
+        .fc-2 {
+            bottom: 25%;
+            right: 30%;
+            animation-delay: 1.5s;
+            flex-direction: row-reverse;
+        }
+
+        .fc-3 {
+            top: 40%;
+            right: -5%;
+            animation-delay: 3s;
+        }
+
+        @media (max-width: 968px) {
+            .hero-section {
+                flex-direction: column;
+                text-align: center;
+                padding: 8rem 2rem 4rem 2rem;
+            }
+
+            .hero-content h1 {
+                font-size: 3.5rem;
+            }
+
+            .hero-buttons {
+                justify-content: center;
+            }
+
+            .navbar {
+                padding: 1.5rem 2rem;
+            }
+
+            .hero-graphic {
+                display: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="brand">NexCare</div>
+        <div class="nav-links">
+            <a href="pages/login.html" class="btn-outline btn-small"
+                style="padding: 0.6rem 1.5rem; text-decoration: none;">Log In</a>
+            <a href="pages/register.html" class="btn-primary btn-small"
+                style="padding: 0.6rem 1.5rem; text-decoration: none; margin-top: 0; width: auto;">Sign Up</a>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-section">
+
+        <div class="glow-sphere sphere-1"></div>
+        <div class="glow-sphere sphere-2"></div>
+
+        <div class="hero-content">
+            <div
+                style="display: inline-block; padding: 0.4rem 1rem; background: rgba(139, 92, 246, 0.15); border: 1px solid rgba(139, 92, 246, 0.3); border-radius: 20px; color: #c4b5fd; font-weight: 600; font-size: 0.9rem; margin-bottom: 1.5rem;">
+                ✨ The Next Generation of Healthcare
+            </div>
+            <h1>Healthcare<br>Reimagined.</h1>
+            <p>Experience seamless medical appointments, digital prescriptions, and 24/7 access to top-tier doctors.
+                Your health, perfectly managed.</p>
+            <div class="hero-buttons">
+                <a href="pages/register.html" style="text-decoration:none;"><button class="btn-primary"
+                        style="margin-top: 0; padding: 1.2rem 2.5rem; font-size: 1.1rem;">Get Started Now</button></a>
+                <a href="pages/login.html" style="text-decoration:none;"><button class="btn-outline"
+                        style="margin-top: 0; padding: 1.2rem 2.5rem; font-size: 1.1rem; border-radius: 14px;">Log In to
+                        Portal</button></a>
+            </div>
+        </div>
+
+        <div class="hero-graphic">
+            <!-- Simulated Dashboard UI Graphic -->
+            <div class="glass-container"
+                style="width: 100%; max-width: 500px; height: 350px; position: relative; z-index: 5; background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255,255,255,0.1); display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 40px 80px rgba(0,0,0,0.8);">
+                <!-- Header -->
+                <div
+                    style="height: 50px; border-bottom: 1px solid rgba(255,255,255,0.05); display: flex; justify-content: flex-start; align-items: center; padding: 0 1.5rem;">
+                    <div style="display: flex; gap: 8px;">
+                        <div style="width: 12px; height: 12px; border-radius: 50%; background: #ef4444;"></div>
+                        <div style="width: 12px; height: 12px; border-radius: 50%; background: #f59e0b;"></div>
+                        <div style="width: 12px; height: 12px; border-radius: 50%; background: #10b981;"></div>
+                    </div>
+                </div>
+                <!-- Body -->
+                <div style="padding: 1.5rem; display: flex; gap: 1.5rem; height: 100%;">
+                    <!-- Sidebar mock -->
+                    <div style="width: 70px; background: rgba(255,255,255,0.03); border-radius: 12px; height: 100%;">
+                    </div>
+                    <!-- Content mock -->
+                    <div style="flex: 1; display: flex; flex-direction: column; gap: 1rem;">
+                        <div style="height: 60px; background: rgba(255,255,255,0.03); border-radius: 12px;"></div>
+                        <div style="display: flex; gap: 1rem; flex: 1;">
+                            <div style="flex: 1; background: rgba(14, 165, 233, 0.1); border-radius: 12px;"></div>
+                            <div style="flex: 1; background: rgba(139, 92, 246, 0.1); border-radius: 12px;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Floating UI Elements -->
+            <div class="floating-card fc-1">
+                <div
+                    style="width: 40px; height: 40px; border-radius: 50%; background: rgba(16, 185, 129, 0.2); border: 1px solid rgba(16, 185, 129, 0.5); display: flex; align-items: center; justify-content: center; font-size: 1.2rem;">
+                    👨‍⚕️</div>
+                <div>
+                    <div style="font-weight: 600; font-size: 0.95rem; color: #fff;">Available Now</div>
+                    <div style="color: var(--text-muted); font-size: 0.8rem;">Top Specialists</div>
+                </div>
+            </div>
+
+            <div class="floating-card fc-2">
+                <div
+                    style="width: 40px; height: 40px; border-radius: 10px; background: rgba(14, 165, 233, 0.2); border: 1px solid rgba(14, 165, 233, 0.5); display: flex; align-items: center; justify-content: center; font-size: 1.2rem;">
+                    📅</div>
+                <div>
+                    <div style="font-weight: 600; font-size: 0.95rem; color: #fff;">Booking Confirmed</div>
+                    <div style="color: var(--text-muted); font-size: 0.8rem;">Ready for visit</div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features-grid">
+        <div class="feature-card glass-container">
+            <div class="feature-icon">⚡</div>
+            <h3>Instant Booking</h3>
+            <p>View real-time availability of specialized doctors, and secure your appointment with just a few clicks.
+            </p>
+        </div>
+        <div class="feature-card glass-container">
+            <div class="feature-icon">🔒</div>
+            <h3>Secure Medical Records</h3>
+            <p>Your prescriptions and diagnosis reports are encrypted and stored safely, accessible only to you and your
+                doctor.</p>
+        </div>
+        <div class="feature-card glass-container">
+            <div class="feature-icon">🏥</div>
+            <h3>Verified Professionals</h3>
+            <p>Every doctor on our platform is rigorously vetted by our administration team ensuring top-notch medical
+                care.</p>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer
+        style="text-align: center; padding: 3rem; color: var(--text-muted); border-top: 1px solid var(--glass-border); margin-top: 2rem; position: relative; z-index: 2;">
+        <p>© 2026 NexCare Infrastructure. All rights reserved.</p>
+    </footer>
+
+</body>
+
+</html>
