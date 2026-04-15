@@ -82,7 +82,14 @@ public class AuthServiceImpl implements AuthService {
             }
         }
 
-        Role role = Role.valueOf(request.getRole().toUpperCase());
+        // Safe Role Parsing
+        Role role;
+        try {
+            String roleStr = request.getRole() != null ? request.getRole().toUpperCase() : "PATIENT";
+            role = Role.valueOf(roleStr);
+        } catch (IllegalArgumentException e) {
+            throw new RuntimeException("Invalid role provided: " + request.getRole() + ". Supported roles: PATIENT, CLINIC, ADMIN");
+        }
 
         if (role == Role.ADMIN) {
             String adminCode = request.getAdminCode();

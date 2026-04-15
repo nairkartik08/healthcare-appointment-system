@@ -89,12 +89,16 @@ public class AuthController {
 
         User user = userRepository.findByUsernameOrEmail(request.getEmail(), request.getEmail()).orElse(null);
         
-        if (user != null && "PENDING_APPROVAL".equals(user.getApprovalStatus())) {
+        if (user == null) {
+            throw new RuntimeException("User data could not be retrieved. Please contact support.");
+        }
+
+        if ("PENDING_APPROVAL".equals(user.getApprovalStatus())) {
             throw new RuntimeException("Your account is pending admin approval. Please check back later.");
         }
         
-        Long userId = user != null ? user.getId() : null;
-        String username = user != null ? user.getUsername() : request.getEmail();
+        Long userId = user.getId();
+        String username = user.getUsername();
 
         LoginResponse response = new LoginResponse(token, userId, username, role);
         return ResponseEntity.ok(response);
