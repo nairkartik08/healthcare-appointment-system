@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import com.healthcare.healthcare_system.service.ClinicService;
 import com.healthcare.healthcare_system.model.Clinic;
 
+@CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/clinic")
 public class ClinicController {

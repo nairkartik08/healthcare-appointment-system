@@ -73,11 +73,20 @@ public class AuthServiceImpl implements AuthService {
             throw new RuntimeException("Username is already taken. Please choose another one.");
         }
 
+        // Email Domain Restriction Check
+        String emailToVerify = request.getEmail();
+        if (emailToVerify != null) {
+            String lowerEmail = emailToVerify.toLowerCase();
+            if (lowerEmail.contains("@test.com") || lowerEmail.contains("@fake.com") || lowerEmail.matches(".*@abc\\..*")) {
+                throw new RuntimeException("Registration using domains like @test.com, @fake.com, or @abc is not allowed. Please use your hospital domain.");
+            }
+        }
+
         Role role = Role.valueOf(request.getRole().toUpperCase());
 
         if (role == Role.ADMIN) {
             String adminCode = request.getAdminCode();
-            if (adminCode == null || !adminCode.trim().equalsIgnoreCase("HCADMIN2026")) {
+            if (adminCode == null || !adminCode.trim().equalsIgnoreCase("KNADMIN2026")) {
                 throw new RuntimeException("Invalid Admin Code. Received: [" + adminCode + "]. Please check and try again.");
             }
         }
@@ -87,6 +96,12 @@ public class AuthServiceImpl implements AuthService {
         user.setEmail(request.getEmail());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setRole(role);
+        
+        if (role == Role.CLINIC) {
+            user.setApprovalStatus("PENDING_APPROVAL");
+        } else {
+            user.setApprovalStatus("APPROVED");
+        }
         
         user.setVerified(false);
         String otp = String.format("%06d", new java.util.Random().nextInt(999999));
@@ -116,6 +131,16 @@ public class AuthServiceImpl implements AuthService {
             clinic.setUserId(user.getId()); // Store user id on clinic if needed
             clinic = clinicRepository.save(clinic);
 
+            // Validate License Format
+            String licenseNumber = request.getLicenseNumber();
+            if (licenseNumber == null || !licenseNumber.matches("^[A-Z]{2}-DOC-[0-9]{6}$")) {
+                throw new RuntimeException("Invalid Medical License Format. Example: MH-DOC-123456");
+            }
+            // Check License Uniqueness
+            if (doctorRepository.findByLicenseNumber(licenseNumber).isPresent()) {
+                throw new RuntimeException("A doctor with this Medical License Number is already registered.");
+            }
+
             Doctor doctor = new Doctor();
             doctor.setName(request.getFullName() != null ? request.getFullName() : request.getUsername());
             doctor.setEmail(request.getEmail());
@@ -131,6 +156,9 @@ public class AuthServiceImpl implements AuthService {
             doctor.setAvailableTimeSlots(request.getAvailableTimeSlots());
             doctor.setClinicAddress(request.getClinicAddress());
             doctor.setProfilePhotoUrl(request.getProfilePhotoUrl());
+            doctor.setLicenseCertificateUrl(request.getLicenseCertificateUrl());
+            doctor.setDegreeUrl(request.getDegreeUrl());
+            doctor.setHospitalIdUrl(request.getHospitalIdUrl());
             doctor.setUserId(user.getId());
             doctor.setClinic(clinic);
             // Optionally link doctor back to User if we need it directly, currently Clinic links to User

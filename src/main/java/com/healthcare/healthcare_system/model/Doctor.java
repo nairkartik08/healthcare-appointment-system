@@ -32,8 +32,17 @@ public class Doctor {
     
     private String qualification;
     
-    @Column(name = "license_number")
+    @Column(name = "license_number", unique = true)
     private String licenseNumber;
+    
+    @Column(name = "license_certificate_url")
+    private String licenseCertificateUrl;
+    
+    @Column(name = "degree_url")
+    private String degreeUrl;
+    
+    @Column(name = "hospital_id_url")
+    private String hospitalIdUrl;
     
     @Column(name = "available_days")
     private String availableDays;

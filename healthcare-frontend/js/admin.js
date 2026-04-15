@@ -29,7 +29,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     await loadAdminProfile();
-    if (currentUser.adminId) {
+    // Proceed to load dashboard if adminId is set, or if user explicitly holds admin role
+    if (currentUser.adminId || currentUser.role === "ROLE_ADMIN" || currentUser.role === "ADMIN") {
         await loadClinicAppointments();
         await loadClinicDoctors();
         await loadPatients();
@@ -41,7 +42,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 function switchSection(sectionId) {
     document.querySelectorAll('.nav-item').forEach(item => {
         item.classList.remove('active');
-        if(item.getAttribute('onclick').includes(sectionId)) {
+        if (item.getAttribute('onclick').includes(sectionId)) {
             item.classList.add('active');
         }
     });
@@ -50,14 +51,14 @@ function switchSection(sectionId) {
         section.classList.remove('active');
     });
     const target = document.getElementById(sectionId);
-    if(target) target.classList.add('active');
+    if (target) target.classList.add('active');
 }
 
 function renderChart(revenueData) {
     const ctx = document.getElementById('revenueChart');
-    if(!ctx) return;
-    
-    if(revenueChartInstance) {
+    if (!ctx) return;
+
+    if (revenueChartInstance) {
         revenueChartInstance.destroy();
     }
 
@@ -91,17 +92,23 @@ function renderChart(revenueData) {
 async function loadAdminProfile() {
     try {
         const adminData = await apiFetch(`/admin/user/${currentUser.userId}`);
-        currentUser.adminId = adminData.id;
-        currentUser.name = adminData.fullName;
-        
-        document.getElementById('headerClinicName').textContent = adminData.fullName;
-        document.getElementById('adminName').value = adminData.fullName || '';
-        document.getElementById('adminEmail').value = adminData.email || '';
-        document.getElementById('adminDepartment').value = adminData.department || '';
-        document.getElementById('adminContact').value = adminData.contactNumber || '';
+
+        if (adminData && typeof adminData === 'object' && adminData.id) {
+            currentUser.adminId = adminData.id;
+            currentUser.name = adminData.fullName || currentUser.name;
+
+            document.getElementById('headerClinicName').textContent = currentUser.name;
+            document.getElementById('adminName').value = adminData.fullName || '';
+            document.getElementById('adminEmail').value = adminData.email || '';
+            document.getElementById('adminDepartment').value = adminData.department || '';
+            document.getElementById('adminContact').value = adminData.contactNumber || '';
+        } else {
+            // Null fallback
+            document.getElementById('headerClinicName').textContent = currentUser.name || "Administrator";
+        }
     } catch (err) {
         console.error("Failed to load admin profile:", err);
-        alert("Error loading admin profile from backend.");
+        document.getElementById('headerClinicName').textContent = currentUser.name || "Administrator";
     }
 }
 
@@ -116,7 +123,7 @@ async function loadClinicAppointments() {
 
 async function loadClinicDoctors() {
     try {
-        appState.doctors = await apiFetch(`/doctor/all`); // Assuming all doctors belong to clinic for simplicity 
+        appState.doctors = await apiFetch(`/admin/doctors`);
         renderDoctors();
     } catch (err) {
         console.error("Failed to load doctors:", err);
@@ -128,11 +135,11 @@ async function loadPatients() {
         appState.patients = await apiFetch(`/patient/all`);
         // Update metric card
         document.querySelectorAll('.dashboard-grid .metric-card .value')[3].textContent = appState.patients.length || 0;
-        
+
         const tbody = document.getElementById("clinicPatientsTableBody");
-        if(tbody) {
+        if (tbody) {
             tbody.innerHTML = '';
-            if(appState.patients.length === 0) {
+            if (appState.patients.length === 0) {
                 tbody.innerHTML = '<tr><td colspan="3" class="text-center">No patients found.</td></tr>';
             } else {
                 appState.patients.forEach(pat => {
@@ -155,20 +162,20 @@ async function loadBilling() {
     try {
         // Fetch all invoices to act as global clinic revenue
         appState.invoices = await apiFetch(`/billing/all`);
-        
+
         let totalRevenue = 0;
         const revenueByMonth = {};
-        
-        const tbody = document.getElementById("clinicBillingTableBody");
-        if(tbody) tbody.innerHTML = '';
 
-        if(appState.invoices.length === 0 && tbody) {
-             tbody.innerHTML = '<tr><td colspan="4" class="text-center">No transactions available.</td></tr>';
+        const tbody = document.getElementById("clinicBillingTableBody");
+        if (tbody) tbody.innerHTML = '';
+
+        if (appState.invoices.length === 0 && tbody) {
+            tbody.innerHTML = '<tr><td colspan="4" class="text-center">No transactions available.</td></tr>';
         }
 
         appState.invoices.forEach(inv => {
             // Add up paid revenue
-            if(inv.status === "PAID" || inv.status === "COMPLETED") {
+            if (inv.status === "PAID" || inv.status === "COMPLETED") {
                 totalRevenue += inv.amount;
                 // Group by a mock date since Invoice doesn't have a date field currently, 
                 // in real app we group by inv.date. We'll simulate a distribution.
@@ -179,15 +186,15 @@ async function loadBilling() {
             }
 
             // Render table row
-            if(tbody) {
-                 const tr = document.createElement('tr');
-                 tr.innerHTML = `
+            if (tbody) {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
                     <td>#INV-${inv.id}</td>
                     <td>${inv.patient ? inv.patient.name : 'Unknown'}</td>
                     <td>₹ ${inv.amount}</td>
                     <td><span style="color: ${inv.status === 'PAID' ? 'var(--success-color)' : 'var(--danger-color)'}">${inv.status}</span></td>
                  `;
-                 tbody.appendChild(tr);
+                tbody.appendChild(tr);
             }
         });
 
@@ -217,17 +224,17 @@ function renderAppointments() {
 
     appState.appointments.forEach(app => {
         const tr = document.createElement('tr');
-        
+
         let statusBadge = app.status;
-        if(app.status === 'SCHEDULED') statusBadge = `<span style="color: var(--primary-color)">SCHEDULED</span>`;
-        if(app.status === 'CANCELLED') statusBadge = `<span style="color: var(--danger-color)">CANCELLED</span>`;
-        if(app.status === 'COMPLETED') statusBadge = `<span style="color: var(--success-color)">COMPLETED</span>`;
+        if (app.status === 'SCHEDULED') statusBadge = `<span style="color: var(--primary-color)">SCHEDULED</span>`;
+        if (app.status === 'CANCELLED') statusBadge = `<span style="color: var(--danger-color)">CANCELLED</span>`;
+        if (app.status === 'COMPLETED') statusBadge = `<span style="color: var(--success-color)">COMPLETED</span>`;
 
         let paymentStatus = app.paymentMode === 'CLINIC' ? 'Pending' : 'Completed';
         let paymentStatusColor = app.paymentMode === 'CLINIC' ? 'var(--danger-color)' : 'var(--success-color)';
         let paymentBadge = `<div style="font-weight: 500; color: ${paymentStatusColor};">${paymentStatus}</div>`;
-        
-        if(app.paymentMode === 'UPI' || app.paymentMode === 'CARD') {
+
+        if (app.paymentMode === 'UPI' || app.paymentMode === 'CARD') {
             paymentBadge += `<div style="font-size:0.85rem; color:var(--text-muted); margin-top:2px;">💳 Online (${app.paymentMode})</div>`;
         } else if (app.paymentMode === 'CLINIC') {
             paymentBadge += `<div style="font-size:0.85rem; color:var(--text-muted); margin-top:2px;">🏥 Pay at Clinic</div>`;
@@ -240,9 +247,9 @@ function renderAppointments() {
             <td>
                  <div style="font-weight: 500; font-size: 1.05rem;">${app.patient ? app.patient.name : 'Unknown Patient'}</div>
                  <div style="font-size:0.85rem; color:var(--text-muted); margin-top: 4px; line-height: 1.4;">
-                     ${app.patient && app.patient.mobileNo ? '📞 '+app.patient.mobileNo : 'No Contact Info'}
-                     ${app.patient && app.patient.age ? '<br>🎂 Age: '+app.patient.age : ''}
-                     ${app.patient && app.patient.email ? '<br>✉️ '+app.patient.email : ''}
+                     ${app.patient && app.patient.mobileNo ? '📞 ' + app.patient.mobileNo : 'No Contact Info'}
+                     ${app.patient && app.patient.age ? '<br>🎂 Age: ' + app.patient.age : ''}
+                     ${app.patient && app.patient.email ? '<br>✉️ ' + app.patient.email : ''}
                  </div>
             </td>
             <td>Dr. ${app.doctor ? app.doctor.name : 'Unknown'}</td>
@@ -266,25 +273,55 @@ function renderDoctors() {
         document.getElementById('metricsDoctors').textContent = '0';
         return;
     }
-    
-    document.getElementById('metricsDoctors').textContent = appState.doctors.length;
 
-    appState.doctors.forEach(doc => {
+    const activeCount = appState.doctors.filter(d => d.approvalStatus === 'APPROVED').length;
+    document.getElementById('metricsDoctors').textContent = activeCount;
+
+    appState.doctors.forEach(item => {
+        // item has .doctor and .approvalStatus if fetched from /admin/doctors
+        // fallback if fetched directly
+        const doc = item.doctor || item;
+        const status = item.approvalStatus || 'APPROVED';
+
+        let statusColor = status === 'APPROVED' ? 'var(--success-color)' : (status === 'PENDING_APPROVAL' ? '#f59e0b' : 'var(--danger-color)');
+
         const card = document.createElement('div');
         card.className = "metric-card glass-container";
         card.innerHTML = `
             <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem;">
                 <h3 style="color: var(--text-main); font-size: 1.15rem; margin: 0;">Dr. ${doc.name}</h3>
-                <div style="color: var(--success-color); font-size: 0.8rem;">Active</div>
+                <div style="color: ${statusColor}; font-size: 0.8rem; font-weight: bold;">${status.replace('_', ' ')}</div>
             </div>
-            <div style="color: var(--primary-color); font-size: 0.9rem; margin-bottom: 1rem;">${doc.specialization}</div>
-            <div style="font-size: 1.1rem; font-weight: 600; margin-bottom: 1.2rem;">
-                ₹${doc.consultationFee} <span style="font-size: 0.8rem; font-weight: normal; color: var(--text-muted)">/ visit</span>
+            <div style="color: var(--primary-color); font-size: 0.9rem; margin-bottom: 0.5rem;">${doc.specialization} | Exp: ${doc.experienceYears || 0}y</div>
+            <div style="font-size: 0.9rem; margin-bottom: 1rem; color: var(--text-muted); line-height: 1.5;">
+                <strong>License:</strong> ${doc.licenseNumber || 'N/A'}<br>
+                ${doc.licenseCertificateUrl ? `<a href="../${doc.licenseCertificateUrl}" target="_blank" style="color: var(--primary); font-size:0.85rem;">📄 License</a> | ` : ''}
+                ${doc.degreeUrl ? `<a href="../${doc.degreeUrl}" target="_blank" style="color: var(--primary); font-size:0.85rem;">📄 Degree</a> | ` : ''}
+                ${doc.hospitalIdUrl ? `<a href="../${doc.hospitalIdUrl}" target="_blank" style="color: var(--primary); font-size:0.85rem;">📄 ID</a>` : ''}
             </div>
-            <button class="btn-outline btn-small" onclick="openSlotModal(${doc.id}, '${doc.name}')">Add Time Slot</button>
+            <div style="display: flex; gap: 0.5rem;">
+                ${status === 'PENDING_APPROVAL' ? `
+                    <button class="btn-outline btn-success btn-small" style="flex:1" onclick="updateDoctorStatus(${doc.id}, 'APPROVED')">Approve</button>
+                    <button class="btn-outline btn-danger btn-small" style="flex:1" onclick="updateDoctorStatus(${doc.id}, 'REJECTED')">Reject</button>
+                ` : `
+                    <button class="btn-outline btn-small" style="flex:1" onclick="openSlotModal(${doc.id}, '${doc.name}')">Add Time Slot</button>
+                `}
+            </div>
         `;
         grid.appendChild(card);
     });
+}
+
+async function updateDoctorStatus(doctorId, status) {
+    if (!confirm(`Are you sure you want to mark this doctor as ${status}?`)) return;
+    try {
+        await apiFetch(`/admin/doctor/${doctorId}/status?status=${status}`, { method: 'PUT' });
+        alert(`Doctor status updated to ${status}`);
+        await loadClinicDoctors();
+    } catch(err) {
+        console.error(err);
+        alert("Failed to update status.");
+    }
 }
 
 async function addDoctor() {
@@ -320,7 +357,7 @@ async function createSlot() {
 
     if(!slotDate || !startTime) return alert("Select date and time");
 
-    const finalDateTime = `${slotDate}T${startTime}:00`;
+    const finalDateTime = `${ slotDate }T${ startTime }:00`;
 
     try {
         await apiFetch(`/clinic/create-slot/${doctorId}`, {

@@ -88,6 +88,11 @@ public class AuthController {
         String token = jwtUtil.generateToken(request.getEmail(), role);
 
         User user = userRepository.findByUsernameOrEmail(request.getEmail(), request.getEmail()).orElse(null);
+        
+        if (user != null && "PENDING_APPROVAL".equals(user.getApprovalStatus())) {
+            throw new RuntimeException("Your account is pending admin approval. Please check back later.");
+        }
+        
         Long userId = user != null ? user.getId() : null;
         String username = user != null ? user.getUsername() : request.getEmail();
 

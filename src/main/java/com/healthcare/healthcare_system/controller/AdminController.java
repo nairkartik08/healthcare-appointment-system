@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/admin")
 public class AdminController {
@@ -21,9 +22,18 @@ public class AdminController {
 
     @GetMapping("/doctor-workload")
     public List<DoctorWorkloadDTO> doctorWorkload(){
-
         return adminService.getDoctorWorkload();
+    }
 
+    @GetMapping("/doctors")
+    public org.springframework.http.ResponseEntity<?> getAllDoctorsWithStatus() {
+        return org.springframework.http.ResponseEntity.ok(adminService.getAllDoctorsWithStatus());
+    }
+
+    @PutMapping("/doctor/{doctorId}/status")
+    public org.springframework.http.ResponseEntity<?> updateDoctorStatus(@PathVariable Long doctorId, @RequestParam String status) {
+        adminService.updateDoctorStatus(doctorId, status);
+        return org.springframework.http.ResponseEntity.ok("Status updated successfully");
     }
 
     @GetMapping("/user/{userId}")

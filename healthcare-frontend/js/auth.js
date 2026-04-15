@@ -93,10 +93,39 @@ async function submitRegistration() {
     payload.consultationFees = parseFloat(document.getElementById("consultationFees").value || 0);
     payload.qualification = document.getElementById("qualification").value;
     payload.experienceYears = parseInt(document.getElementById("experienceYears").value || 0, 10);
-    payload.licenseNumber = document.getElementById("licenseNumber").value;
+    
+    // License Number Validation
+    const rawLicense = document.getElementById("licenseNumber").value.trim();
+    const licenseRegex = /^[A-Z]{2}-DOC-[0-9]{6}$/;
+    if (!licenseRegex.test(rawLicense)) {
+      errorMsg.textContent = "Invalid Medical License Format. Example: MH-DOC-123456";
+      return;
+    }
+    payload.licenseNumber = rawLicense;
+    
+    // Domain Check
+    const lowerEmail = email.toLowerCase();
+    if (lowerEmail.includes("@test.com") || lowerEmail.includes("@fake.com") || lowerEmail.includes("@abc")) {
+       errorMsg.textContent = "Test domains (@test.com, @fake.com, @abc) are rejected. Use hospital email.";
+       return;
+    }
+
     payload.hospitalName = document.getElementById("hospitalName").value;
     payload.clinicAddress = document.getElementById("clinicAddress").value;
-    payload.profilePhotoUrl = document.getElementById("profilePhotoUrl").value;
+    
+    // Helper to get virtual path
+    const getMockUrl = (inputId, folder) => {
+        const fileInput = document.getElementById(inputId);
+        if (fileInput && fileInput.files && fileInput.files.length > 0) {
+            return `uploads/${folder}/${fileInput.files[0].name.toLowerCase().replace(/\s+/g, '_')}`;
+        }
+        return `uploads/${folder}/default_document.jpg`;
+    };
+    
+    payload.profilePhotoUrl = getMockUrl("profilePhoto", "profiles");
+    payload.licenseCertificateUrl = getMockUrl("licenseCertificate", "license");
+    payload.degreeUrl = getMockUrl("degreeCertificate", "degree");
+    payload.hospitalIdUrl = getMockUrl("hospitalIdCard", "hospitalid");
 
     const days = [];
     document.querySelectorAll('input[name="availDays"]:checked').forEach(e => days.push(e.value));

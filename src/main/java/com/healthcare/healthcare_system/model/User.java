@@ -28,6 +28,9 @@ public class User {
 
     private boolean isVerified = false;
 
+    @Column(name = "approval_status")
+    private String approvalStatus = "APPROVED"; // Default to APPROVED for Patient/Admin, override to PENDING_APPROVAL for Doctors
+
     @Column(name = "otp_code")
     private String otpCode;
 

@@ -36,6 +36,11 @@ public class RegisterRequest {
     private String availableTimeSlots;
     private String clinicAddress;
     private String profilePhotoUrl;
+    
+    // Document Uploads (Mock URLs/Paths)
+    private String licenseCertificateUrl;
+    private String degreeUrl;
+    private String hospitalIdUrl;
 
     // Admin
     private String department;
