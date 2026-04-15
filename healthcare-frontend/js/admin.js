@@ -269,7 +269,7 @@ function renderDoctors() {
     grid.innerHTML = '';
 
     if (!appState.doctors || appState.doctors.length === 0) {
-        grid.innerHTML = '<p class="text-muted">No doctors currently managed.</p>';
+        grid.innerHTML = '<p class="text-muted">No doctors available</p>';
         document.getElementById('metricsDoctors').textContent = '0';
         return;
     }

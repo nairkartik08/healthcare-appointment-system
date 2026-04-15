@@ -205,7 +205,7 @@ function renderDoctors(doctorsList) {
     grid.innerHTML = '';
 
     if (!doctorsList || doctorsList.length === 0) {
-        grid.innerHTML = '<p class="text-muted">No doctors found matching criteria.</p>';
+        grid.innerHTML = '<p class="text-muted">No doctors available</p>';
         return;
     }
 
@@ -340,7 +340,12 @@ async function openBookingModal(doctorId, doctorName) {
         const container = document.getElementById('slotsContainer');
         container.innerHTML = "";
         
-        const availableSlots = slots.filter(s => !s.booked);
+        const now = new Date();
+        const availableSlots = slots.filter(s => {
+            if (s.booked) return false;
+            const slotTime = new Date(s.startTime);
+            return slotTime > now;
+        });
         
         if (availableSlots.length === 0) {
             container.innerHTML = "<div class='text-center text-muted' style='padding: 2rem 0;'>No slots available currently.<br>Please try another doctor.</div>";
