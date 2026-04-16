@@ -457,12 +457,16 @@ function renderNotifications(notifications) {
             cursor: pointer;
             border-left: 4px solid ${notif.isRead ? 'transparent' : 'var(--danger-color)'};
             transition: all 0.3s ease;
+            position: relative;
         `;
         
         const titleStyle = notif.isRead ? 'color: var(--text-main); font-weight: normal;' : 'color: white; font-weight: bold;';
         
         div.innerHTML = `
-            <div style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.3rem;">${new Date(notif.createdAt).toLocaleDateString()}</div>
+            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                <div style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.3rem;">${new Date(notif.createdAt).toLocaleDateString()}</div>
+                <button class="delete-notif-btn" style="background: none; border: none; color: var(--danger-color); cursor: pointer; font-size: 1rem; opacity: 0.7; padding: 0 4px;" title="Delete">✖</button>
+            </div>
             <div style="${titleStyle} margin-bottom: 0.5rem; font-size: 1.05rem;">${notif.title}</div>
             <div style="font-size: 0.9rem; color: var(--text-muted); line-height: 1.4;">${notif.message}</div>
         `;
@@ -472,6 +476,22 @@ function renderNotifications(notifications) {
                 await markNotificationRead(notif.id);
                 notif.isRead = true; // Optimistic update
                 renderNotifications(notifications); // Re-render logic
+            }
+        };
+
+        const deleteBtn = div.querySelector('.delete-notif-btn');
+        deleteBtn.onclick = async (e) => {
+            e.stopPropagation(); // Prevent trigger of mark-as-read
+            if (!confirm("Are you sure you want to delete this notification?")) return;
+            try {
+                await apiFetch(`/patient/notifications/delete/${notif.id}`, { method: 'DELETE' });
+                // Remove out of local array to re-render properly without waiting for backend delay
+                const index = notifications.findIndex(n => n.id === notif.id);
+                if (index > -1) notifications.splice(index, 1);
+                renderNotifications(notifications);
+            } catch(err) {
+                console.error("Failed to delete:", err);
+                alert("Failed to delete notification.");
             }
         };
         

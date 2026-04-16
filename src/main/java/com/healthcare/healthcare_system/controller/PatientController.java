@@ -152,4 +152,13 @@ public class PatientController {
         }
         return org.springframework.http.ResponseEntity.badRequest().body("Notification not found");
     }
+
+    @DeleteMapping("/notifications/delete/{notificationId}")
+    public org.springframework.http.ResponseEntity<?> deleteNotification(@PathVariable Long notificationId) {
+        if (patientNotificationRepository.existsById(notificationId)) {
+            patientNotificationRepository.deleteById(notificationId);
+            return org.springframework.http.ResponseEntity.ok("Notification deleted successfully");
+        }
+        return org.springframework.http.ResponseEntity.badRequest().body("Notification not found");
+    }
 }
