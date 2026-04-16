@@ -109,7 +109,23 @@ public class PatientController {
 
     @GetMapping("/user/{userId}")
     public Patient getPatientByUserId(@PathVariable Long userId) {
-        return patientService.getPatientByUserId(userId);
+        try {
+            return patientService.getPatientByUserId(userId);
+        } catch (com.healthcare.healthcare_system.exception.ResourceNotFoundException e) {
+            org.springframework.security.core.Authentication auth = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+            if (auth != null && auth.getName() != null) {
+                 // Try to fallback if the UI cache passed an old userId but the token is valid
+                 try {
+                     return patientService.getAllPatients().stream()
+                             .filter(p -> auth.getName().equals(p.getEmail()) || auth.getName().equals(p.getName()))
+                             .findFirst()
+                             .orElseThrow(() -> e);
+                 } catch (Exception fallbackEx) {
+                     throw e;
+                 }
+            }
+            throw e;
+        }
     }
 
     @GetMapping("/all")

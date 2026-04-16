@@ -46,6 +46,16 @@ public class DoctorController {
 
     @GetMapping("/user/{userId}")
     public Doctor getDoctorByUserId(@PathVariable Long userId) {
-        return doctorRepository.findByUserId(userId).orElse(null);
+        Doctor doc = doctorRepository.findByUserId(userId).orElse(null);
+        if (doc == null) {
+            org.springframework.security.core.Authentication auth = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+            if (auth != null && auth.getName() != null) {
+                return doctorRepository.findAll().stream()
+                        .filter(d -> auth.getName().equals(d.getEmail()))
+                        .findFirst()
+                        .orElse(null);
+            }
+        }
+        return doc;
     }
 }
