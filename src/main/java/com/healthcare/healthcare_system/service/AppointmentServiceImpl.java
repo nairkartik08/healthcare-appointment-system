@@ -18,18 +18,21 @@ public class AppointmentServiceImpl implements AppointmentService {
     private final DoctorRepository doctorRepository;
     private final SlotRepository slotRepository;
     private final InvoiceService invoiceService;
+    private final EmailService emailService;
 
     public AppointmentServiceImpl(AppointmentRepository appointmentRepository,
                                   PatientRepository patientRepository,
                                   DoctorRepository doctorRepository,
                                   SlotRepository slotRepository,
-                                  InvoiceService invoiceService) {
+                                  InvoiceService invoiceService,
+                                  EmailService emailService) {
 
         this.appointmentRepository = appointmentRepository;
         this.patientRepository = patientRepository;
         this.doctorRepository = doctorRepository;
         this.slotRepository = slotRepository;
         this.invoiceService = invoiceService;
+        this.emailService = emailService;
     }
 
     @Override
@@ -83,6 +86,16 @@ public class AppointmentServiceImpl implements AppointmentService {
         System.out.println("Subject: Appointment Confirmation");
         System.out.println("Your appointment with Dr. " + doctor.getName() + " is confirmed for " + slot.getStartTime());
         System.out.println("====================================");
+
+        // Send Email to Doctor
+        if (doctor.getEmail() != null) {
+             emailService.sendAppointmentNotificationToDoctor(
+                 doctor.getEmail(),
+                 doctor.getName(),
+                 patient.getName() != null ? patient.getName() : "Unknown Patient",
+                 slot.getStartTime().toString()
+             );
+        }
 
         return savedAppointment;
     }

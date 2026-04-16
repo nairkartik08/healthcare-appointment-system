@@ -32,4 +32,23 @@ public class EmailService {
             throw new RuntimeException("Could not send email. Please check your SMTP configuration.");
         }
     }
+    public void sendAppointmentNotificationToDoctor(String toDoctorEmail, String doctorName, String patientName, String timeSlot) {
+        System.out.println("🔥 [DEBUG] Sending Appointment Notification to Doctor: " + toDoctorEmail);
+        try {
+            SimpleMailMessage message = new SimpleMailMessage();
+            message.setFrom(fromEmail);
+            message.setTo(toDoctorEmail);
+            message.setSubject("New Appointment Booking");
+            message.setText("Dear Dr. " + doctorName + ",\n\n" +
+                    "A new appointment has been booked by patient " + patientName + ".\n" +
+                    "Time Slot: " + timeSlot + "\n\n" +
+                    "Thank you,\nHealthcare Portal Team");
+            
+            javaMailSender.send(message);
+            System.out.println("✅ [DEBUG] Appointment Notification sent successfully to Doctor: " + toDoctorEmail);
+        } catch (Exception e) {
+            System.out.println("❌ [DEBUG] Failed to send email to " + toDoctorEmail + ". Error: " + e.getMessage());
+            // We just log the error so that the appointment booking doesn't fail just because email failed
+        }
+    }
 }

@@ -60,6 +60,16 @@ public class AuthServiceImpl implements AuthService {
             } catch (Exception e) {
                 System.out.println("⚠️ Columns might already exist: " + e.getMessage());
             }
+            
+            // Map existing profiles to users via email
+            try {
+                jdbcTemplate.execute("UPDATE patient SET user_id = (SELECT id FROM users WHERE users.email = patient.email) WHERE user_id IS NULL AND email IN (SELECT email FROM users)");
+                jdbcTemplate.execute("UPDATE doctor SET user_id = (SELECT id FROM users WHERE users.email = doctor.email) WHERE user_id IS NULL AND email IN (SELECT email FROM users)");
+                jdbcTemplate.execute("UPDATE admin SET user_id = (SELECT id FROM users WHERE users.email = admin.email) WHERE user_id IS NULL AND email IN (SELECT email FROM users)");
+                System.out.println("✅ AUTO-MAPPED EXISTING PROFILES TO USERS BY EMAIL.");
+            } catch (Exception e) {
+                System.out.println("⚠️ Could not auto-map profiles: " + e.getMessage());
+            }
         } catch (Exception e) {
             System.out.println("⚠️ Could not drop constraint, it might not exist: " + e.getMessage());
         }
