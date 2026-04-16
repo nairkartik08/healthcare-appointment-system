@@ -49,6 +49,12 @@ public class DoctorController {
         return org.springframework.http.ResponseEntity.ok("Campaign created and notifications sent.");
     }
 
+    @GetMapping("/campaign/history/{doctorId}")
+    public org.springframework.http.ResponseEntity<?> getCampaignHistory(@PathVariable Long doctorId) {
+        List<com.healthcare.healthcare_system.model.Campaign> history = campaignRepository.findByDoctorIdOrderByCreatedAtDesc(doctorId);
+        return org.springframework.http.ResponseEntity.ok(history);
+    }
+
     // ✅ Get all doctors (optional duplicate endpoint)
     @GetMapping("/doctors")
     public List<Doctor> getDoctors() {

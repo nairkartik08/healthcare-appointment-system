@@ -43,7 +43,12 @@ function switchSection(sectionId) {
         section.classList.remove('active');
     });
     const target = document.getElementById(sectionId);
-    if(target) target.classList.add('active');
+    if(target) {
+        target.classList.add('active');
+        if (sectionId === 'campaign') {
+            loadCampaignHistory();
+        }
+    }
 }
 
 // --- Data Fetching ---
@@ -345,9 +350,50 @@ async function createCampaign() {
         document.getElementById('campMessage').value = '';
         document.querySelectorAll('.patient-checkbox').forEach(cb => cb.checked = false);
 
+        // Refresh History
+        loadCampaignHistory();
+
     } catch (err) {
         console.error(err);
         alert("Failed to create campaign.");
+    }
+}
+
+async function loadCampaignHistory() {
+    const listDiv = document.getElementById('campaignHistoryList');
+    if (!listDiv) return;
+
+    if (!currentUser.doctorId) return;
+
+    try {
+        const history = await apiFetch(`/doctor/campaign/history/${currentUser.doctorId}`);
+        listDiv.innerHTML = '';
+        
+        if (!history || history.length === 0) {
+            listDiv.innerHTML = '<div class="text-muted">No campaign history found.</div>';
+            return;
+        }
+
+        history.forEach(camp => {
+            const div = document.createElement('div');
+            div.style.cssText = "background: rgba(255,255,255,0.05); padding: 1.5rem; border-radius: 8px; border-left: 4px solid var(--primary-color);";
+            
+            const printDate = camp.createdAt ? new Date(camp.createdAt).toLocaleString() : 'Just now';
+            
+            div.innerHTML = `
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.8rem;">
+                    <strong style="color: white; font-size: 1.1rem;">${camp.campaignName}</strong>
+                    <span style="color: var(--text-muted); font-size: 0.85rem;">${printDate}</span>
+                </div>
+                <div style="color: var(--accent-color); font-weight: 500; margin-bottom: 0.5rem; font-size: 0.95rem;">Subject: ${camp.notificationTitle}</div>
+                <div style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.5;">${camp.message}</div>
+            `;
+            listDiv.appendChild(div);
+        });
+
+    } catch (err) {
+        console.error("Failed to load campaign history:", err);
+        listDiv.innerHTML = '<div class="text-muted error-msg" style="padding: 1rem;">Failed to load history</div>';
     }
 }
 
