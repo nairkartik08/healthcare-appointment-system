@@ -1,12 +1,12 @@
-const BASE_URL = "http://localhost:8080";
-// const BASE_URL = "https://healthcare-appointment-system-u28v.onrender.com";
+// const BASE_URL = "http://localhost:8080";
+const BASE_URL = "https://healthcare-appointment-system-u28v.onrender.com";
 
 /**
  * Custom fetch wrapper to automatically inject Authorization header
  */
 async function apiFetch(endpoint, options = {}) {
   const token = localStorage.getItem("token");
-  
+
   const headers = {
     "Content-Type": "application/json",
     ...options.headers,
@@ -31,7 +31,7 @@ async function apiFetch(endpoint, options = {}) {
       try {
         const text = await response.text();
         if (text) errorMessage = text;
-      } catch (err) {}
+      } catch (err) { }
     }
 
     if (response.status === 401 || response.status === 403) {
