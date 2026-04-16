@@ -12,9 +12,41 @@ import java.util.List;
 public class DoctorController {
 
     private final DoctorRepository doctorRepository;
+    private final com.healthcare.healthcare_system.repository.CampaignRepository campaignRepository;
+    private final com.healthcare.healthcare_system.repository.PatientNotificationRepository patientNotificationRepository;
 
-    public DoctorController(DoctorRepository doctorRepository) {
+    public DoctorController(DoctorRepository doctorRepository,
+                            com.healthcare.healthcare_system.repository.CampaignRepository campaignRepository,
+                            com.healthcare.healthcare_system.repository.PatientNotificationRepository patientNotificationRepository) {
         this.doctorRepository = doctorRepository;
+        this.campaignRepository = campaignRepository;
+        this.patientNotificationRepository = patientNotificationRepository;
+    }
+
+    @PostMapping("/campaign/create/{doctorId}")
+    public org.springframework.http.ResponseEntity<?> createCampaign(
+            @PathVariable Long doctorId,
+            @RequestBody com.healthcare.healthcare_system.dto.CampaignRequest req) {
+
+        com.healthcare.healthcare_system.model.Campaign campaign = new com.healthcare.healthcare_system.model.Campaign();
+        campaign.setDoctorId(doctorId);
+        campaign.setCampaignName(req.getCampaignName());
+        campaign.setNotificationTitle(req.getNotificationTitle());
+        campaign.setMessage(req.getMessage());
+        campaignRepository.save(campaign);
+
+        if (req.getPatientIds() != null) {
+            for (Long pid : req.getPatientIds()) {
+                com.healthcare.healthcare_system.model.PatientNotification pn = new com.healthcare.healthcare_system.model.PatientNotification();
+                pn.setPatientId(pid);
+                pn.setCampaignId(campaign.getId());
+                pn.setTitle(req.getNotificationTitle());
+                pn.setMessage(req.getMessage());
+                pn.setIsRead(false);
+                patientNotificationRepository.save(pn);
+            }
+        }
+        return org.springframework.http.ResponseEntity.ok("Campaign created and notifications sent.");
     }
 
     // ✅ Get all doctors (optional duplicate endpoint)

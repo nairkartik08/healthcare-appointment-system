@@ -272,3 +272,82 @@ async function cancelAppointmentAdmin(appointmentId) {
         alert("Cancellation failed.");
     }
 }
+
+// --- Campaign Logic ---
+function populateCampaignPatients() {
+    const listDiv = document.getElementById('campaignPatientsList');
+    listDiv.innerHTML = '';
+
+    // Extract unique patients from appointments
+    const patientMap = new Map();
+    appState.appointments.forEach(a => {
+        if (a.patient && a.patient.id) {
+            patientMap.set(a.patient.id, a.patient.name);
+        }
+    });
+
+    if (patientMap.size === 0) {
+        listDiv.innerHTML = '<div class="text-muted">No patients found.</div>';
+        return;
+    }
+
+    patientMap.forEach((name, id) => {
+        const div = document.createElement('div');
+        div.style.display = 'flex';
+        div.style.alignItems = 'center';
+        div.style.gap = '0.5rem';
+        div.innerHTML = `
+            <input type="checkbox" id="camp_pat_${id}" value="${id}" class="patient-checkbox" />
+            <label for="camp_pat_${id}" style="color: var(--text-main); margin-bottom:0; cursor:pointer;">${name}</label>
+        `;
+        listDiv.appendChild(div);
+    });
+}
+
+// Call this at the end of loadDoctorAppointments
+const _originalLoadDoctorAppointments = loadDoctorAppointments;
+loadDoctorAppointments = async function() {
+    await _originalLoadDoctorAppointments();
+    populateCampaignPatients();
+};
+
+async function createCampaign() {
+    const campaignName = document.getElementById('campName').value.trim();
+    const notificationTitle = document.getElementById('campTitle').value.trim();
+    const message = document.getElementById('campMessage').value.trim();
+
+    if (!campaignName || !notificationTitle || !message) {
+        return alert("Please fill all campaign fields.");
+    }
+
+    const checkboxes = document.querySelectorAll('.patient-checkbox:checked');
+    const patientIds = Array.from(checkboxes).map(cb => parseInt(cb.value));
+
+    if (patientIds.length === 0) {
+        return alert("Please select at least one patient to notify.");
+    }
+
+    try {
+        await apiFetch(`/doctor/campaign/create/${currentUser.doctorId}`, {
+            method: 'POST',
+            body: JSON.stringify({
+                campaignName,
+                notificationTitle,
+                message,
+                patientIds
+            })
+        });
+        alert("Campaign created and notifications sent successfully!");
+        
+        // Reset form
+        document.getElementById('campName').value = '';
+        document.getElementById('campTitle').value = '';
+        document.getElementById('campMessage').value = '';
+        document.querySelectorAll('.patient-checkbox').forEach(cb => cb.checked = false);
+
+    } catch (err) {
+        console.error(err);
+        alert("Failed to create campaign.");
+    }
+}
+

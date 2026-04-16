@@ -10,7 +10,7 @@
 
 <body>
     <div class="dashboard-wrapper">
-        <!-- Sidebar -->
+            <!-- Sidebar -->
         <aside class="sidebar">
             <div class="brand">Doctor Portal</div>
             <div class="nav-menu">
@@ -19,6 +19,7 @@
                 <div class="nav-item" onclick="switchSection('appointments')">📅 My Appointments</div>
                 <div class="nav-item" onclick="switchSection('slots')">⏰ My Available Slots</div>
                 <div class="nav-item" onclick="switchSection('patients')">👥 My Patients</div>
+                <div class="nav-item" onclick="switchSection('campaign')">📢 Campaign</div>
             </div>
             <button class="btn-primary" onclick="logout()"
                 style="margin-top: auto; background: rgba(239,68,68,0.2) !important; color:#ef4444 !important; border: 1px solid #ef4444 !important;">Log
@@ -165,6 +166,35 @@
                     <h2 class="section-title">My Patients (Coming Soon)</h2>
                     <p class="text-muted">A dedicated module for managing medical records and prescriptions for your
                         specific patients.</p>
+                </div>
+            </section>
+
+            <!-- Campaign Section -->
+            <section id="campaign" class="dashboard-section">
+                <div class="glass-container" style="padding: 2rem; max-width: 800px;">
+                    <h2 class="section-title">Create Campaign</h2>
+                    <p class="text-muted" style="margin-bottom: 1.5rem;">Notify targeted patients of unscheduled absence or announcements.</p>
+                    
+                    <div class="input-group" style="margin-bottom: 1rem;">
+                        <label>Campaign Name</label>
+                        <input type="text" id="campName" placeholder="e.g. Leave for May 5th" />
+                    </div>
+                    <div class="input-group" style="margin-bottom: 1rem;">
+                        <label>Notification Title</label>
+                        <input type="text" id="campTitle" placeholder="e.g. Doctor Unavailable Notice" />
+                    </div>
+                    <div class="input-group" style="margin-bottom: 1.5rem;">
+                        <label>Message</label>
+                        <textarea id="campMessage" rows="4" placeholder="Hello, I will not be available..."></textarea>
+                    </div>
+
+                    <h3 style="margin-bottom: 1rem; color: var(--text-main);">Filter Patients</h3>
+                    <div id="campaignPatientsList" style="max-height: 200px; overflow-y: auto; background: rgba(255,255,255,0.05); padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; display: flex; flex-direction: column; gap: 0.5rem;">
+                        <!-- Checkboxes populated via JS -->
+                        <div class="text-muted">Loading patients...</div>
+                    </div>
+
+                    <button class="btn-primary" onclick="createCampaign()">Create & Send</button>
                 </div>
             </section>
 

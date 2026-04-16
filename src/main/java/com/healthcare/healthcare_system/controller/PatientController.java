@@ -26,17 +26,21 @@ public class PatientController {
     private final AppointmentService appointmentService;
     private final PatientService patientService;
     private final MedicalRecordService medicalRecordService;
+    private final com.healthcare.healthcare_system.repository.PatientNotificationRepository patientNotificationRepository;
+
     public PatientController(DoctorService doctorService,
                              SlotService slotService,
                              AppointmentService appointmentService,
                              PatientService patientService,
-                             MedicalRecordService medicalRecordService) {
+                             MedicalRecordService medicalRecordService,
+                             com.healthcare.healthcare_system.repository.PatientNotificationRepository patientNotificationRepository) {
 
         this.doctorService = doctorService;
         this.slotService = slotService;
         this.appointmentService = appointmentService;
         this.patientService = patientService;
         this.medicalRecordService = medicalRecordService;
+        this.patientNotificationRepository = patientNotificationRepository;
     }
     @GetMapping("/doctors")
     public List<Doctor> getDoctors() {
@@ -131,5 +135,21 @@ public class PatientController {
     @GetMapping("/all")
     public List<Patient> getAllPatients() {
         return patientService.getAllPatients();
+    }
+
+    @GetMapping("/notifications/{patientId}")
+    public List<com.healthcare.healthcare_system.model.PatientNotification> getNotifications(@PathVariable Long patientId) {
+        return patientNotificationRepository.findByPatientIdOrderByCreatedAtDesc(patientId);
+    }
+
+    @PutMapping("/notifications/read/{notificationId}")
+    public org.springframework.http.ResponseEntity<?> markNotificationAsRead(@PathVariable Long notificationId) {
+        com.healthcare.healthcare_system.model.PatientNotification pn = patientNotificationRepository.findById(notificationId).orElse(null);
+        if (pn != null) {
+            pn.setIsRead(true);
+            patientNotificationRepository.save(pn);
+            return org.springframework.http.ResponseEntity.ok("Notification marked as read");
+        }
+        return org.springframework.http.ResponseEntity.badRequest().body("Notification not found");
     }
 }

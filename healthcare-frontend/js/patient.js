@@ -420,3 +420,91 @@ async function cancelAppointment(appointmentId) {
         alert("Failed to cancel appointment");
     }
 }
+
+// --- Notifications Logic ---
+async function loadNotifications() {
+    if (!currentUser.patientId) return;
+    try {
+        const notifications = await apiFetch(`/patient/notifications/${currentUser.patientId}`);
+        renderNotifications(notifications);
+    } catch (err) {
+        console.error("Failed to load notifications:", err);
+    }
+}
+
+function renderNotifications(notifications) {
+    const list = document.getElementById('notificationsList');
+    const badge = document.getElementById('notificationBadge');
+    
+    list.innerHTML = '';
+    
+    if (!notifications || notifications.length === 0) {
+        list.innerHTML = '<div class="text-muted">No notifications</div>';
+        badge.style.display = 'none';
+        return;
+    }
+
+    let unreadCount = 0;
+    
+    notifications.forEach(notif => {
+        if (!notif.isRead) unreadCount++;
+        
+        const div = document.createElement('div');
+        div.style.cssText = `
+            padding: 1rem; 
+            border-radius: 8px; 
+            background: rgba(255,255,255,0.05); 
+            cursor: pointer;
+            border-left: 4px solid ${notif.isRead ? 'transparent' : 'var(--danger-color)'};
+            transition: all 0.3s ease;
+        `;
+        
+        const titleStyle = notif.isRead ? 'color: var(--text-main); font-weight: normal;' : 'color: white; font-weight: bold;';
+        
+        div.innerHTML = `
+            <div style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.3rem;">${new Date(notif.createdAt).toLocaleDateString()}</div>
+            <div style="${titleStyle} margin-bottom: 0.5rem; font-size: 1.05rem;">${notif.title}</div>
+            <div style="font-size: 0.9rem; color: var(--text-muted); line-height: 1.4;">${notif.message}</div>
+        `;
+        
+        div.onclick = async () => {
+            if (!notif.isRead) {
+                await markNotificationRead(notif.id);
+                notif.isRead = true; // Optimistic update
+                renderNotifications(notifications); // Re-render logic
+            }
+        };
+        
+        list.appendChild(div);
+    });
+
+    if (unreadCount > 0) {
+        badge.textContent = unreadCount;
+        badge.style.display = 'block';
+    } else {
+        badge.style.display = 'none';
+    }
+}
+
+async function markNotificationRead(id) {
+    try {
+        await apiFetch(`/patient/notifications/read/${id}`, { method: 'PUT' });
+    } catch (err) {
+        console.error("Failed to mark notification as read", err);
+    }
+}
+
+function toggleNotifications() {
+    const panel = document.getElementById('notificationsPanel');
+    if (panel.style.display === 'none' || panel.style.display === '') {
+        panel.style.display = 'block';
+    } else {
+        panel.style.display = 'none';
+    }
+}
+
+const _originalLoadPatientProfile = loadPatientProfile;
+loadPatientProfile = async function() {
+    await _originalLoadPatientProfile();
+    await loadNotifications();
+};
