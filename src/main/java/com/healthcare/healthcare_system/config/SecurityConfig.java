@@ -32,8 +32,8 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
-                        .requestMatchers("/auth/**", "/error").permitAll()
-                        .requestMatchers("/patient/**", "/doctor/**", "/appointments/**", "/payment/**", "/billing/**", "/records/**", "/prescriptions/**", "/clinic/**")
+                        .requestMatchers("/auth/**", "/error", "/ws/**").permitAll()
+                        .requestMatchers("/patient/**", "/doctor/**", "/appointments/**", "/payment/**", "/billing/**", "/records/**", "/prescriptions/**", "/clinic/**", "/chat/**")
                                 .hasAnyAuthority("ROLE_PATIENT", "ROLE_CLINIC", "ROLE_ADMIN", "PATIENT", "CLINIC", "ADMIN")
                         .anyRequest().authenticated()
                 )
@@ -59,9 +59,10 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList("*"));
+        configuration.setAllowedOriginPatterns(Arrays.asList("*"));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
+        configuration.setAllowCredentials(true);
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;

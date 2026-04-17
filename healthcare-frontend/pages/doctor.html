@@ -20,6 +20,7 @@
                 <div class="nav-item" onclick="switchSection('slots')">⏰ My Available Slots</div>
                 <div class="nav-item" onclick="switchSection('patients')">👥 My Patients</div>
                 <div class="nav-item" onclick="switchSection('campaign')">📢 Campaign</div>
+                <div class="nav-item" onclick="switchSection('chat')">💬 Chat</div>
             </div>
             <button class="btn-primary" onclick="logout()"
                 style="margin-top: auto; background: rgba(239,68,68,0.2) !important; color:#ef4444 !important; border: 1px solid #ef4444 !important;">Log
@@ -256,12 +257,36 @@
                 </div>
             </div>
 
+            <!-- Chat Section -->
+            <section id="chat" class="dashboard-section">
+                <div class="glass-container" style="padding: 2rem; display: flex; flex-direction: column; height: 80vh;">
+                    <h2 class="section-title">Chat with Patients</h2>
+                    <div style="display: flex; gap: 1rem; flex: 1;">
+                        <div id="chatContacts" style="width: 30%; border-right: 1px solid var(--glass-border); overflow-y: auto; padding-right: 1rem;">
+                            <p class="text-muted">Loading your patients...</p>
+                        </div>
+                        <div style="flex: 1; display: flex; flex-direction: column;">
+                            <div id="chatMessages" style="flex: 1; overflow-y: auto; padding: 1rem; display: flex; flex-direction: column; gap: 0.5rem; background: rgba(0,0,0,0.2); border-radius: 8px; margin-bottom: 1rem;">
+                                <p class="text-muted text-center" style="margin-top: auto; margin-bottom: auto;">Select a patient to start chatting.</p>
+                            </div>
+                            <div style="display: flex; gap: 0.5rem;">
+                                <input type="text" id="chatInput" placeholder="Type a message..." style="flex: 1; padding: 0.8rem; border-radius: 8px; border: 1px solid var(--glass-border); background: var(--bg-dark); color: var(--text-main);" disabled onkeypress="if(event.key === 'Enter') sendChatMessage()" />
+                                <button class="btn-primary" id="chatSendBtn" style="margin: 0;" onclick="sendChatMessage()" disabled>Send</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
         </main>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
     <script src="../js/api.js"></script>
     <script src="../js/auth.js"></script>
     <script src="../js/doctor.js"></script>
+    <script src="../js/chat.js"></script>
 </body>
 
 </html>
