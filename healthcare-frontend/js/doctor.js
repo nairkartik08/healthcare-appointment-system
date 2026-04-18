@@ -143,6 +143,8 @@ function renderAppointments() {
         if(app.status === 'BOOKED') statusBadge = `<span style="color: var(--primary-color)">BOOKED</span>`;
         if(app.status === 'CANCELLED') statusBadge = `<span style="color: var(--danger-color)">CANCELLED</span>`;
         if(app.status === 'COMPLETED') statusBadge = `<span style="color: var(--success-color)">COMPLETED</span>`;
+        if(app.status === 'EXPIRED') statusBadge = `<span style="color: #64748b; font-weight: bold;">EXPIRED</span>`;
+        if(app.status === 'EXPIRED_REFUNDED') statusBadge = `<span style="color: #38bdf8; font-weight: bold;">REFUNDED</span>`;
 
         let formattedDateTime = '-';
         if (app.slot && app.slot.startTime) {
@@ -171,8 +173,8 @@ function renderAppointments() {
             <td>${formattedDateTime}</td>
             <td>${statusBadge}${paymentStatusHtml}</td>
             <td style="display: flex; gap: 0.5rem;">
-                ${app.status === 'BOOKED' ? `<button class="btn-outline btn-success btn-small" onclick="openCompletionModal(${app.id})">Complete</button>` : ''}
-                ${app.status === 'BOOKED' ? `<button class="btn-outline btn-danger btn-small" onclick="cancelAppointmentAdmin(${app.id})">Cancel</button>` : '-'}
+                ${app.status === 'BOOKED' ? `<button class="btn-outline btn-success btn-small" onclick="openCompletionModal(${app.id})">Complete</button>
+                                          <button class="btn-outline btn-danger btn-small" onclick="cancelAppointmentAdmin(${app.id})">Cancel</button>` : '-'}
             </td>
         `;
         tbody.appendChild(tr);

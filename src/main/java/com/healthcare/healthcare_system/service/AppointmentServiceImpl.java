@@ -4,7 +4,7 @@ import com.healthcare.healthcare_system.model.*;
 import com.healthcare.healthcare_system.repository.*;
 import com.healthcare.healthcare_system.model.AppointmentStatus;
 import com.healthcare.healthcare_system.model.Slot;
-import com.healthcare.healthcare_system.model.AppointmentStatus;
+import java.time.LocalDateTime;
 
 import org.springframework.stereotype.Service;
 
@@ -102,12 +102,16 @@ public class AppointmentServiceImpl implements AppointmentService {
 
     @Override
     public List<Appointment> getAllAppointments() {
-        return appointmentRepository.findAll();
+        List<Appointment> all = appointmentRepository.findAll();
+        checkAndMarkExpired(all);
+        return all;
     }
 
     @Override
     public List<Appointment> getAppointmentsByPatient(Long patientId) {
-        return appointmentRepository.findByPatientId(patientId);
+        List<Appointment> appointments = appointmentRepository.findByPatientId(patientId);
+        checkAndMarkExpired(appointments);
+        return appointments;
     }
 
     @Override
@@ -128,11 +132,11 @@ public class AppointmentServiceImpl implements AppointmentService {
 
     @Override
     public List<Appointment> getDoctorAppointments(Long doctorId) {
-
         Doctor doctor = doctorRepository.findById(doctorId)
                 .orElseThrow();
-
-        return appointmentRepository.findByDoctor(doctor);
+        List<Appointment> appointments = appointmentRepository.findByDoctor(doctor);
+        checkAndMarkExpired(appointments);
+        return appointments;
     }
 
     @Override
@@ -175,5 +179,23 @@ public class AppointmentServiceImpl implements AppointmentService {
         invoiceService.generateInvoice(appointmentId);
 
         return appointment;
+    }
+
+    private void checkAndMarkExpired(List<Appointment> appointments) {
+        LocalDateTime now = LocalDateTime.now();
+        for (Appointment app : appointments) {
+            if (app.getStatus() == AppointmentStatus.BOOKED && app.getSlot() != null) {
+                // If appointment start time + 1 hour grace is before now, mark as EXPIRED in memory
+                if (app.getSlot().getStartTime().plusHours(1).isBefore(now)) {
+                    String mode = app.getPaymentMode() != null ? app.getPaymentMode().toUpperCase() : "";
+                    if (mode.contains("CARD") || mode.contains("UPI")) {
+                        app.setStatus(AppointmentStatus.EXPIRED_REFUNDED);
+                    } else {
+                        app.setStatus(AppointmentStatus.EXPIRED);
+                    }
+                    // Do NOT call repository.save(app) here to avoid conflicts during GET requests.
+                }
+            }
+        }
     }
 }

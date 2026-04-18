@@ -171,7 +171,7 @@ function renderAppointments() {
     tbody.innerHTML = '';
 
     if (!appState.appointments || appState.appointments.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="4" class="text-center">No appointments found.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="5" class="text-center">No appointments found.</td></tr>';
         document.getElementById('metricsAppointments').textContent = '0';
         return;
     }
@@ -187,10 +187,16 @@ function renderAppointments() {
         if(app.status === 'BOOKED') statusBadge = `<span style="color: var(--primary-color)">BOOKED</span>`;
         if(app.status === 'CANCELLED') statusBadge = `<span style="color: var(--danger-color)">CANCELLED</span>`;
         if(app.status === 'COMPLETED') statusBadge = `<span style="color: var(--success-color)">COMPLETED</span>`;
+        if(app.status === 'EXPIRED') statusBadge = `<span style="color: #64748b; font-weight: bold;">EXPIRED</span>`;
+        if(app.status === 'EXPIRED_REFUNDED') statusBadge = `<span style="color: #38bdf8; font-weight: bold;">REFUNDED</span>`;
+
+        const dateObj = app.slot ? new Date(app.slot.startTime) : null;
+        const timeDisplay = dateObj ? dateObj.toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : 'N/A';
 
         tr.innerHTML = `
             <td>#${app.id}</td>
             <td>Dr. ${app.doctor ? app.doctor.name : 'Unknown'}</td>
+            <td>${timeDisplay}</td>
             <td>${statusBadge}</td>
             <td>
                 ${app.status === 'BOOKED' ? `<button class="btn-outline btn-danger btn-small" onclick="cancelAppointment(${app.id})">Cancel</button>` : '-'}

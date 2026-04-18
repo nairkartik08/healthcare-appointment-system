@@ -154,7 +154,17 @@ function appendMessage(message, isSelf) {
     div.innerHTML = `<div>${message.content}</div>`;
     
     chatMessages.appendChild(div);
-    chatMessages.scrollTop = chatMessages.scrollHeight;
+    scrollToBottom();
+}
+
+function scrollToBottom() {
+    const chatMessages = document.getElementById("chatMessages");
+    if (!chatMessages) return;
+    
+    // Use setTimeout to ensure the element has been rendered
+    setTimeout(() => {
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }, 10);
 }
 
 function sendChatMessage() {

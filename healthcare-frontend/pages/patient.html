@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Patient Dashboard - Healthcare Portal</title>
     <link rel="stylesheet" href="../css/styles.css">
 </head>
+
 <body>
     <div class="dashboard-wrapper">
         <!-- Sidebar -->
@@ -15,11 +17,12 @@
                 <div class="nav-item active" onclick="switchSection('overview')">🩺 Overview</div>
                 <div class="nav-item" onclick="switchSection('profile')">👤 My Profile</div>
                 <div class="nav-item" onclick="switchSection('appointments')">📅 Appointments</div>
-                <div class="nav-item" onclick="switchSection('appointments')">📋 My Appointments</div>
                 <div class="nav-item" onclick="switchSection('records')">🏥 Medical Records</div>
                 <div class="nav-item" onclick="switchSection('chat')">💬 Chat</div>
             </div>
-            <button class="btn-primary" onclick="logout()" style="margin-top: auto; background: rgba(239,68,68,0.2) !important; color:#ef4444 !important; border: 1px solid #ef4444 !important;">Log Out</button>
+            <button class="btn-primary" onclick="logout()"
+                style="margin-top: auto; background: rgba(239,68,68,0.2) !important; color:#ef4444 !important; border: 1px solid #ef4444 !important;">Log
+                Out</button>
         </aside>
 
         <!-- Main Content -->
@@ -30,12 +33,16 @@
                     <!-- Notification Bell -->
                     <div style="position: relative; cursor: pointer; padding: 0.5rem;" onclick="toggleNotifications()">
                         <span style="font-size: 1.5rem;">🔔</span>
-                        <span id="notificationBadge" style="display: none; position: absolute; top: 0; right: 0; background: var(--danger-color); color: white; border-radius: 50%; font-size: 0.7rem; padding: 2px 5px; font-weight: bold;">0</span>
+                        <span id="notificationBadge"
+                            style="display: none; position: absolute; top: 0; right: 0; background: var(--danger-color); color: white; border-radius: 50%; font-size: 0.7rem; padding: 2px 5px; font-weight: bold;">0</span>
                     </div>
 
                     <!-- Notification Dropdown Menu -->
-                    <div id="notificationsPanel" class="glass-container" style="display: none; position: absolute; top: 100%; right: 1rem; width: 350px; max-height: 400px; overflow-y: auto; padding: 1rem; z-index: 1000; box-shadow: 0 10px 25px rgba(0,0,0,0.5);">
-                        <h3 style="margin-bottom: 1rem; color: var(--accent-color); border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 0.5rem;">Notifications</h3>
+                    <div id="notificationsPanel" class="glass-container"
+                        style="display: none; position: absolute; top: 100%; right: 1rem; width: 350px; max-height: 400px; overflow-y: auto; padding: 1rem; z-index: 1000; box-shadow: 0 10px 25px rgba(0,0,0,0.5);">
+                        <h3
+                            style="margin-bottom: 1rem; color: var(--accent-color); border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 0.5rem;">
+                            Notifications</h3>
                         <div id="notificationsList" style="display: flex; flex-direction: column; gap: 0.8rem;">
                             <!-- Dynamically populated via JS -->
                             <div class="text-muted">No notifications</div>
@@ -72,8 +79,10 @@
                 <div class="glass-container" style="padding: 2rem;">
                     <h2 class="section-title">Quick Actions</h2>
                     <div style="display: flex; gap: 1rem;">
-                        <button class="btn-primary" style="width: auto; margin-top: 0;" onclick="switchSection('doctors')">Book New Appointment</button>
-                        <button class="btn-outline btn-small" onclick="switchSection('records')" style="padding: 1rem 1.5rem; font-size: 1.15rem;">View Recent Reports</button>
+                        <button class="btn-primary" style="width: auto; margin-top: 0;"
+                            onclick="switchSection('doctors')">Book New Appointment</button>
+                        <button class="btn-outline btn-small" onclick="switchSection('records')"
+                            style="padding: 1rem 1.5rem; font-size: 1.15rem;">View Recent Reports</button>
                     </div>
                 </div>
             </section>
@@ -138,12 +147,15 @@
                                 <tr>
                                     <th>ID</th>
                                     <th>Doctor</th>
+                                    <th>Date & Time</th>
                                     <th>Status</th>
                                     <th>Action</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr><td colspan="4" class="text-center">Loading appointments...</td></tr>
+                                <tr>
+                                    <td colspan="5" class="text-center">Loading appointments...</td>
+                                </tr>
                             </tbody>
                         </table>
                     </div>
@@ -154,7 +166,9 @@
             <section id="doctors" class="dashboard-section">
                 <div style="display: flex; gap: 1rem; margin-bottom: 2rem;">
                     <div class="input-group" style="flex: 1;">
-                        <input type="text" id="doctorSearchInput" placeholder="Search by Specialization (e.g., Cardiologist)" onkeyup="filterDoctors()" style="background: var(--glass-bg);">
+                        <input type="text" id="doctorSearchInput"
+                            placeholder="Search by Specialization (e.g., Cardiologist)" onkeyup="filterDoctors()"
+                            style="background: var(--glass-bg);">
                     </div>
                 </div>
                 <div class="dashboard-grid" id="doctorsGrid">
@@ -164,37 +178,46 @@
 
             <!-- Medical Records Placeholder -->
             <section id="records" class="dashboard-section">
-                 <div class="dashboard-grid">
+                <div class="dashboard-grid">
                     <div class="glass-container" style="padding: 2rem;">
                         <h2 class="section-title" style="color: var(--accent-color)">Test Reports & Diagnosis</h2>
-                        <ul id="patientReportsList" style="list-style: none; display: flex; flex-direction: column; gap: 1rem;">
+                        <ul id="patientReportsList"
+                            style="list-style: none; display: flex; flex-direction: column; gap: 1rem;">
                             <!-- Dynamically loaded -->
                         </ul>
                     </div>
-                     <div class="glass-container" style="padding: 2rem;">
+                    <div class="glass-container" style="padding: 2rem;">
                         <h2 class="section-title" style="color: var(--success-color)">Active Prescriptions</h2>
-                        <ul id="patientPrescriptionsList" style="list-style: none; display: flex; flex-direction: column; gap: 1rem;">
-                           <!-- Dynamically loaded -->
+                        <ul id="patientPrescriptionsList"
+                            style="list-style: none; display: flex; flex-direction: column; gap: 1rem;">
+                            <!-- Dynamically loaded -->
                         </ul>
                     </div>
-                 </div>
+                </div>
             </section>
 
-            <!-- Chat Section -->
             <section id="chat" class="dashboard-section">
-                <div class="glass-container" style="padding: 2rem; display: flex; flex-direction: column; height: 80vh;">
+                <div class="glass-container"
+                    style="padding: 2rem; display: flex; flex-direction: column; height: calc(100vh - 180px); min-height: 400px;">
                     <h2 class="section-title">Chat with Doctors</h2>
-                    <div style="display: flex; gap: 1rem; flex: 1;">
-                        <div id="chatContacts" style="width: 30%; border-right: 1px solid var(--glass-border); overflow-y: auto; padding-right: 1rem;">
+                    <div style="display: flex; gap: 1rem; flex: 1; min-height: 0;">
+                        <div id="chatContacts"
+                            style="width: 30%; border-right: 1px solid var(--glass-border); overflow-y: auto; padding-right: 1rem; min-height: 0;">
                             <p class="text-muted">Loading your doctors...</p>
                         </div>
-                        <div style="flex: 1; display: flex; flex-direction: column;">
-                            <div id="chatMessages" style="flex: 1; overflow-y: auto; padding: 1rem; display: flex; flex-direction: column; gap: 0.5rem; background: rgba(0,0,0,0.2); border-radius: 8px; margin-bottom: 1rem;">
-                                <p class="text-muted text-center" style="margin-top: auto; margin-bottom: auto;">Select a doctor to start chatting.</p>
+                        <div style="flex: 1; display: flex; flex-direction: column; min-height: 0;">
+                            <div id="chatMessages"
+                                style="flex: 1; overflow-y: auto; padding: 1rem; display: flex; flex-direction: column; gap: 0.5rem; background: rgba(0,0,0,0.2); border-radius: 8px; margin-bottom: 1rem; min-height: 0; scroll-behavior: smooth;">
+                                <p class="text-muted text-center" style="margin-top: auto; margin-bottom: auto;">Select
+                                    a doctor to start chatting.</p>
                             </div>
-                            <div style="display: flex; gap: 0.5rem;">
-                                <input type="text" id="chatInput" placeholder="Type a message..." style="flex: 1; padding: 0.8rem; border-radius: 8px; border: 1px solid var(--glass-border); background: var(--bg-dark); color: var(--text-main);" disabled onkeypress="if(event.key === 'Enter') sendChatMessage()" />
-                                <button class="btn-primary" id="chatSendBtn" style="margin: 0;" onclick="sendChatMessage()" disabled>Send</button>
+                            <div style="display: flex; gap: 0.5rem; align-items: stretch;">
+                                <input type="text" id="chatInput" placeholder="Type a message..."
+                                    style="flex: 1; padding: 0.8rem 1.2rem; border-radius: 12px; border: 1px solid var(--glass-border); background: rgba(0,0,0,0.3); color: var(--text-main); outline: none;"
+                                    disabled onkeypress="if(event.key === 'Enter') sendChatMessage()" />
+                                <button class="btn-primary" id="chatSendBtn" 
+                                    style="margin: 0; width: auto; padding: 0 1.5rem; height: auto;"
+                                    onclick="sendChatMessage()" disabled>Send</button>
                             </div>
                         </div>
                     </div>
@@ -206,13 +229,16 @@
 
     <!-- Booking Modal Placeholders -->
     <!-- Booking Modal Wizard -->
-    <div id="bookingModal" class="glass-container" style="display:none; position: fixed; top: 0; bottom: 0; left: 0; right: 0; margin: auto; height: max-content; z-index: 100; padding: 2.5rem; width: 450px; background: rgba(15, 23, 42, 0.98); border: 1px solid var(--glass-border); box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);">
-        
+    <div id="bookingModal" class="glass-container"
+        style="display:none; position: fixed; top: 0; bottom: 0; left: 0; right: 0; margin: auto; height: max-content; z-index: 100; padding: 2.5rem; width: 450px; background: rgba(15, 23, 42, 0.98); border: 1px solid var(--glass-border); box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);">
+
         <!-- Step 1: Slot Selection -->
         <div id="bookingStep1">
             <h2>Select Appointment Slot</h2>
-            <div class="subtitle" id="bookingDoctorName" style="margin-bottom: 1.5rem; color: var(--accent-light);"></div>
-            <div id="slotsContainer" style="display: flex; flex-direction: column; gap: 0.8rem; max-height: 250px; overflow-y: auto; margin-bottom: 1.5rem; padding-right: 0.5rem;">
+            <div class="subtitle" id="bookingDoctorName" style="margin-bottom: 1.5rem; color: var(--accent-light);">
+            </div>
+            <div id="slotsContainer"
+                style="display: flex; flex-direction: column; gap: 0.8rem; max-height: 250px; overflow-y: auto; margin-bottom: 1.5rem; padding-right: 0.5rem;">
                 <!-- Slots injected here -->
             </div>
             <input type="hidden" id="bookingDoctorId">
@@ -225,8 +251,9 @@
         <!-- Step 2: Patient Details -->
         <div id="bookingStep2" style="display: none;">
             <h2>Confirm Basic Details</h2>
-            <div class="subtitle" style="margin-bottom: 1.5rem; color: var(--text-muted);">Please verify your information for this booking.</div>
-            
+            <div class="subtitle" style="margin-bottom: 1.5rem; color: var(--text-muted);">Please verify your
+                information for this booking.</div>
+
             <div class="input-group" style="margin-bottom: 1rem;">
                 <label>Full Name</label>
                 <input type="text" id="bookingName">
@@ -247,7 +274,8 @@
             </div>
 
             <div style="display: flex; gap: 1rem;">
-                <button class="btn-primary" onclick="proceedToPayment()" style="width: 100%;">Continue to Payment</button>
+                <button class="btn-primary" onclick="proceedToPayment()" style="width: 100%;">Continue to
+                    Payment</button>
                 <button class="btn-outline btn-small" onclick="goToStep(1)">Back</button>
             </div>
         </div>
@@ -262,4 +290,5 @@
     <script src="../js/patient.js"></script>
     <script src="../js/chat.js"></script>
 </body>
+
 </html>
