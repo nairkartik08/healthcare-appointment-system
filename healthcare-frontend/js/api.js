@@ -1,5 +1,7 @@
-const BASE_URL = "http://localhost:8080";
-// const BASE_URL = "https://healthcare-appointment-system-u28v.onrender.com";
+// Use localhost for local development, and the Render URL for the hosted live site
+const BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
+    ? "http://localhost:8080" 
+    : "https://healthcare-appointment-system-u28v.onrender.com";
 
 /**
  * Custom fetch wrapper to automatically inject Authorization header
