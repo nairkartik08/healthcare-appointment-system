@@ -175,7 +175,7 @@
 
             <!-- Find Doctors Section -->
             <section id="doctors" class="dashboard-section">
-                <div style="display: flex; gap: 1rem; margin-bottom: 2rem; flex-wrap: wrap;">
+                <div style="display: flex; gap: 1rem; margin-bottom: 2rem; flex-wrap: wrap; align-items: center;">
                     <div class="input-group" style="flex: 1; min-width: 250px;">
                         <input type="text" id="doctorSearchInput"
                             placeholder="Search by Specialization or Name..." oninput="filterDoctors()"
@@ -204,6 +204,45 @@
                             <option value="1000">Under ₹1000</option>
                             <option value="2000">Under ₹2000</option>
                         </select>
+                    </div>
+                    <div style="display: flex; align-items: center; position: relative;">
+                        <!-- AI Triage Button -->
+                        <button class="btn-primary" onclick="openAiTriageModal()" style="display: flex; align-items: center; gap: 0.5rem; background: linear-gradient(135deg, #a855f7 0%, #3b82f6 100%); border: none; padding: 0.8rem 1.5rem; border-radius: 8px;">
+                            <span style="font-size: 1.2rem;">✨</span> AI Triage
+                        </button>
+
+                        <!-- AI Triage Popup anchored directly below the button -->
+                        <style>
+                            #aiChatContainer::-webkit-scrollbar { width: 6px; }
+                            #aiChatContainer::-webkit-scrollbar-track { background: transparent; }
+                            #aiChatContainer::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.2); border-radius: 10px; }
+                            #aiChatContainer::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.3); }
+                        </style>
+                        <div id="aiTriageModal" class="glass-container" style="display: none; position: absolute; top: calc(100% + 15px); right: 0; z-index: 1000; width: 350px; height: 420px; padding: 1.5rem; flex-direction: column; border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1); background: #0f172a;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-shrink: 0;">
+                                <h2 style="margin: 0; display: flex; align-items: center; gap: 0.5rem; color: #a855f7; font-size: 1.2rem;">
+                                    ✨ AI Assistant
+                                </h2>
+                                <button onclick="closeAiTriageModal()" style="background: none; border: none; color: white; cursor: pointer; font-size: 1.2rem;">✕</button>
+                            </div>
+                            <div style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1rem; flex-shrink: 0;">
+                                Describe your symptoms, and I'll recommend the right doctor instantly.
+                            </div>
+                            <div style="flex: 1; overflow-y: auto; display: flex; flex-direction: column; margin-bottom: 1rem;" id="aiChatContainer">
+                                <div id="aiTriageResult" style="display: none; background: rgba(168, 85, 247, 0.1); border: 1px solid rgba(168, 85, 247, 0.3); border-radius: 8px; padding: 1rem; margin-top: auto;">
+                                    <div style="display: flex; gap: 0.8rem; align-items: flex-start;">
+                                        <img src="https://ui-avatars.com/api/?name=AI&background=a855f7&color=fff&rounded=false&size=128" style="width: 32px; height: 32px; border-radius: 6px; object-fit: cover; flex-shrink: 0;" alt="AI">
+                                        <div id="aiTriageMessage" style="color: var(--text-main); font-size: 0.95rem; line-height: 1.4;"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div style="flex-shrink: 0; display: flex; flex-direction: column; gap: 0.8rem;">
+                                <textarea id="aiSymptomsInput" rows="2" placeholder="E.g., sharp back pain..." style="width: 100%; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; color: white; padding: 0.8rem; font-size: 0.95rem; box-sizing: border-box; resize: none; outline: none;"></textarea>
+                                <button id="aiTriageBtn" class="btn-primary" onclick="checkSymptoms()" style="width: 100%; border-radius: 8px; padding: 0.8rem; background: linear-gradient(135deg, #a855f7 0%, #3b82f6 100%); border: none; font-weight: 600;">
+                                    Ask AI
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div class="dashboard-grid" id="doctorsGrid">
@@ -355,6 +394,8 @@
 
 
     </div>
+
+
 
     <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>

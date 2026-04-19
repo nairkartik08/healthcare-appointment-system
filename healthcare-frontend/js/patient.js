@@ -728,3 +728,63 @@ async function submitReview() {
         closeReviewModal();
     }
 }
+
+// --- AI Triage Logic ---
+function openAiTriageModal() {
+    document.getElementById('aiSymptomsInput').value = '';
+    document.getElementById('aiTriageResult').style.display = 'none';
+    document.getElementById('aiTriageMessage').textContent = '';
+    document.getElementById('aiTriageModal').style.display = 'flex';
+}
+
+function closeAiTriageModal() {
+    document.getElementById('aiTriageModal').style.display = 'none';
+}
+
+async function checkSymptoms() {
+    let symptoms = document.getElementById('aiSymptomsInput').value.trim();
+    if (!symptoms) {
+        symptoms = "I have a severe headache, nausea, and sensitivity to light. What kind of doctor should I see?";
+        document.getElementById('aiSymptomsInput').value = symptoms;
+    }
+
+    const btn = document.getElementById('aiTriageBtn');
+    const resultBox = document.getElementById('aiTriageResult');
+    const messageEl = document.getElementById('aiTriageMessage');
+
+    btn.textContent = "Gemini is thinking...";
+    btn.disabled = true;
+    resultBox.style.display = 'none';
+
+    try {
+        const response = await apiFetch('/patient/ai-triage', {
+            method: 'POST',
+            body: JSON.stringify({ symptoms: symptoms })
+        });
+        
+        resultBox.style.display = 'block';
+        messageEl.innerHTML = response.recommendation || "Unable to determine. Please consult a General Physician.";
+        
+        // Auto-search logic: If the recommendation contains a known specialization, auto-filter the table
+        const lowerRec = (response.recommendation || "").toLowerCase();
+        let detectedSpec = "";
+        const specs = ["cardiologist", "dermatologist", "orthopedic", "pediatrician", "general physician", "neurologist", "psychiatrist"];
+        for(let s of specs) {
+            if (lowerRec.includes(s)) {
+                detectedSpec = s;
+                break;
+            }
+        }
+        
+        if (detectedSpec) {
+             document.getElementById('doctorSearchInput').value = detectedSpec;
+             filterDoctors(); // Trigger filter behind the modal!
+        }
+    } catch (err) {
+        console.error(err);
+        alert("Failed to connect to AI Service. Please try again later.");
+    } finally {
+        btn.textContent = "Ask AI";
+        btn.disabled = false;
+    }
+}
