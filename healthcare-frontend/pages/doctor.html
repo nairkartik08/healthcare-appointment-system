@@ -20,6 +20,7 @@
                 <div class="nav-item" onclick="switchSection('slots')">⏰ My Available Slots</div>
                 <div class="nav-item" onclick="switchSection('patients')">👥 My Patients</div>
                 <div class="nav-item" onclick="switchSection('campaign')">📢 Announcements</div>
+                <div class="nav-item" onclick="switchSection('reviews')">⭐ Patient Reviews</div>
                 <div class="nav-item" onclick="switchSection('chat')">💬 Chat</div>
             </div>
             <button class="btn-primary" onclick="logout()"
@@ -30,7 +31,7 @@
         <!-- Main Content -->
         <main class="main-content">
             <header class="dashboard-header">
-                <h1>Welcome, Dr. <span id="headerDoctorName">Loading...</span></h1>
+                <h1>Welcome, Dr. <span id="headerDoctorName"><div class="skeleton skeleton-text" style="display: inline-block; width: 150px; margin: 0; vertical-align: middle;"></div></span></h1>
                 <div class="user-profile-badge">
                     <span>Doctor</span>
                 </div>
@@ -51,6 +52,22 @@
                     <div class="metric-card glass-container">
                         <h3>Total Patients Seen</h3>
                         <div class="value" id="metricsPatients">0</div>
+                    </div>
+                </div>
+
+                <!-- Advanced Analytics Dashboards -->
+                <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem; margin-top: 1rem; position: relative; z-index: 1;">
+                    <div class="metric-card glass-container" style="padding: 1.5rem; overflow: hidden;">
+                        <h3 style="margin-bottom: 1rem; color: var(--primary-color);">Revenue Trend (Last 7 Days)</h3>
+                        <div style="position: relative; height: 300px; width: 100%;">
+                            <canvas id="revenueTrendChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="metric-card glass-container" style="padding: 1.5rem; overflow: hidden; display: flex; flex-direction: column; align-items: center;">
+                        <h3 style="margin-bottom: 1rem; color: var(--accent-color); align-self: flex-start;">Appointments by Status</h3>
+                        <div style="position: relative; height: 300px; width: 100%; display: flex; justify-content: center;">
+                            <canvas id="statusChart"></canvas>
+                        </div>
                     </div>
                 </div>
             </section>
@@ -134,7 +151,18 @@
                             </thead>
                             <tbody>
                                 <tr>
-                                    <td colspan="5" class="text-center">Loading...</td>
+                                    <td><div class="skeleton skeleton-text" style="width: 50%;"></div></td>
+                                    <td><div class="skeleton skeleton-text"></div><div class="skeleton skeleton-text" style="width: 60%"></div></td>
+                                    <td><div class="skeleton skeleton-text"></div><div class="skeleton skeleton-text" style="width: 60%"></div></td>
+                                    <td><div class="skeleton skeleton-text" style="width: 70%;"></div></td>
+                                    <td><div class="skeleton skeleton-text" style="width: 30%;"></div></td>
+                                </tr>
+                                <tr>
+                                    <td><div class="skeleton skeleton-text" style="width: 50%;"></div></td>
+                                    <td><div class="skeleton skeleton-text"></div><div class="skeleton skeleton-text" style="width: 60%"></div></td>
+                                    <td><div class="skeleton skeleton-text"></div><div class="skeleton skeleton-text" style="width: 60%"></div></td>
+                                    <td><div class="skeleton skeleton-text" style="width: 70%;"></div></td>
+                                    <td><div class="skeleton skeleton-text" style="width: 30%;"></div></td>
                                 </tr>
                             </tbody>
                         </table>
@@ -194,7 +222,9 @@
                     <div id="campaignPatientsList"
                         style="max-height: 200px; overflow-y: auto; background: rgba(255,255,255,0.05); padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; display: flex; flex-direction: column; gap: 0.5rem;">
                         <!-- Checkboxes populated via JS -->
-                        <div class="text-muted">Loading patients...</div>
+                        <div class="skeleton skeleton-text"></div>
+                        <div class="skeleton skeleton-text" style="width: 80%"></div>
+                        <div class="skeleton skeleton-text" style="width: 90%"></div>
                     </div>
 
                     <button class="btn-primary" onclick="createCampaign()">Create & Send</button>
@@ -203,7 +233,8 @@
                         style="margin-top: 3rem; margin-bottom: 1rem; color: var(--text-main); border-top: 1px solid var(--glass-border); padding-top: 2rem;">
                         Campaign History</h3>
                     <div id="campaignHistoryList" style="display: flex; flex-direction: column; gap: 1rem;">
-                        <div class="text-muted">Loading campaign history...</div>
+                        <div class="skeleton skeleton-text" style="height: 5rem;"></div>
+                        <div class="skeleton skeleton-text" style="height: 5rem;"></div>
                     </div>
                 </div>
             </section>
@@ -259,6 +290,15 @@
                 </div>
             </div>
 
+            <section id="reviews" class="dashboard-section">
+                <div class="glass-container" style="padding: 2.5rem;">
+                    <h2 class="section-title">Patient Reviews</h2>
+                    <div id="doctorReviewsList" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem;">
+                        <div class="text-muted">Loading reviews...</div>
+                    </div>
+                </div>
+            </section>
+
             <section id="chat" class="dashboard-section">
                 <div class="glass-container"
                     style="padding: 2rem; display: flex; flex-direction: column; height: calc(100vh - 180px); min-height: 400px;">
@@ -266,7 +306,8 @@
                     <div style="display: flex; gap: 1rem; flex: 1; min-height: 0;">
                         <div id="chatContacts"
                             style="width: 30%; border-right: 1px solid var(--glass-border); overflow-y: auto; padding-right: 1rem; min-height: 0;">
-                            <p class="text-muted">Loading your patients...</p>
+                            <div class="skeleton skeleton-text" style="height: 3rem; border-radius: 8px;"></div>
+                            <div class="skeleton skeleton-text" style="height: 3rem; border-radius: 8px;"></div>
                         </div>
                         <div style="flex: 1; display: flex; flex-direction: column; min-height: 0;">
                             <div id="chatMessages"
@@ -292,6 +333,7 @@
 
     <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="../js/api.js"></script>
     <script src="../js/auth.js"></script>
     <script src="../js/doctor.js"></script>

@@ -48,6 +48,9 @@ function switchSection(sectionId) {
         if (sectionId === 'campaign') {
             loadCampaignHistory();
         }
+        if (sectionId === 'reviews') {
+            loadDoctorReviews();
+        }
     }
 }
 
@@ -121,6 +124,9 @@ async function loadDoctorAppointments() {
         document.getElementById('metricsPatients').textContent = patientSet.size;
         document.getElementById('metricsRevenue').textContent = totalRevenue;
 
+        // Render analytics charts
+        renderAnalytics();
+
     } catch (err) {
         console.error("Failed to load appointments:", err);
     }
@@ -132,7 +138,15 @@ function renderAppointments() {
     tbody.innerHTML = '';
 
     if (!appState.appointments || appState.appointments.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="4" class="text-center">No appointments found.</td></tr>';
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="5" class="text-center" style="padding: 3rem;">
+                    <div style="font-size: 3rem; margin-bottom: 1rem;">📅</div>
+                    <h3 style="color: var(--text-main); margin-bottom: 0.5rem;">No Appointments Yet</h3>
+                    <p class="text-muted">You have no scheduled appointments at the moment.</p>
+                </td>
+            </tr>
+        `;
         return;
     }
 
@@ -294,7 +308,13 @@ function populateCampaignPatients() {
     });
 
     if (patientMap.size === 0) {
-        listDiv.innerHTML = '<div class="text-muted">No patients found.</div>';
+        listDiv.innerHTML = `
+            <div style="text-align: center; padding: 2rem;">
+                <div style="font-size: 2rem; margin-bottom: 0.5rem; opacity: 0.7;">👥</div>
+                <div style="color: var(--text-main); font-weight: 500;">No Patients Available</div>
+                <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.3rem;">Complete an appointment to add patients to your campaign list.</div>
+            </div>
+        `;
         return;
     }
 
@@ -372,7 +392,13 @@ async function loadCampaignHistory() {
         listDiv.innerHTML = '';
         
         if (!history || history.length === 0) {
-            listDiv.innerHTML = '<div class="text-muted">No campaign history found.</div>';
+            listDiv.innerHTML = `
+                <div style="text-align: center; padding: 2rem; background: rgba(255,255,255,0.02); border-radius: 8px; border: 1px dashed var(--glass-border);">
+                    <div style="font-size: 2.5rem; margin-bottom: 1rem; opacity: 0.7;">📢</div>
+                    <div style="color: var(--text-main); font-weight: 500;">No Campaign History</div>
+                    <div style="font-size: 0.9rem; color: var(--text-muted); margin-top: 0.3rem;">Once you send a campaign, it will appear here.</div>
+                </div>
+            `;
             return;
         }
 
@@ -396,6 +422,183 @@ async function loadCampaignHistory() {
     } catch (err) {
         console.error("Failed to load campaign history:", err);
         listDiv.innerHTML = '<div class="text-muted error-msg" style="padding: 1rem;">Failed to load history</div>';
+    }
+}
+
+// --- Reviews Logic ---
+async function loadDoctorReviews() {
+    const listDiv = document.getElementById('doctorReviewsList');
+    if (!listDiv) return;
+    
+    if (!currentUser.doctorId) return;
+
+    try {
+        const reviews = await apiFetch(`/reviews/doctor/${currentUser.doctorId}`);
+        listDiv.innerHTML = '';
+        
+        if (!reviews || reviews.length === 0) {
+            listDiv.innerHTML = `
+                <div style="grid-column: 1 / -1; text-align: center; padding: 2rem; background: rgba(255,255,255,0.02); border-radius: 8px; border: 1px dashed var(--glass-border);">
+                    <div style="font-size: 2.5rem; margin-bottom: 1rem; opacity: 0.7;">⭐</div>
+                    <div style="color: var(--text-main); font-weight: 500;">No Reviews Yet</div>
+                    <div style="font-size: 0.9rem; color: var(--text-muted); margin-top: 0.3rem;">Patients haven't left any reviews for you yet.</div>
+                </div>
+            `;
+            return;
+        }
+
+        reviews.forEach(rev => {
+            const div = document.createElement('div');
+            div.style.cssText = "background: rgba(255,255,255,0.05); padding: 1.5rem; border-radius: 12px; border: 1px solid var(--glass-border);";
+            
+            const printDate = rev.createdAt ? new Date(rev.createdAt).toLocaleString('en-US', {month: 'short', day: 'numeric', year: 'numeric'}) : 'Just now';
+            const renderStars = (rating) => {
+                let stars = '';
+                for(let i=0; i<5; i++) {
+                    stars += i < rating ? '⭐' : '<span style="opacity:0.3">⭐</span>';
+                }
+                return stars;
+            }
+            
+            div.innerHTML = `
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.8rem;">
+                    <strong style="color: white; font-size: 1.1rem;">${rev.patientName}</strong>
+                    <span style="color: var(--text-muted); font-size: 0.85rem;">${printDate}</span>
+                </div>
+                <div style="margin-bottom: 0.8rem; font-size: 0.9rem;">${renderStars(rev.rating)}</div>
+                <div style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.5; font-style: italic;">"${rev.comment}"</div>
+            `;
+            listDiv.appendChild(div);
+        });
+
+    } catch (err) {
+        console.error("Failed to load reviews:", err);
+        listDiv.innerHTML = '<div class="text-muted error-msg" style="padding: 1rem;">Failed to load reviews</div>';
+    }
+}
+
+// --- Analytics rendered by Chart.js ---
+let revenueChartInstance = null;
+let statusChartInstance = null;
+
+function renderAnalytics() {
+    if (!window.Chart) return; // Prevent errors if CDN fails
+
+    const last7Days = [];
+    const revenueData = [];
+    
+    // Generate dates
+    for (let i = 6; i >= 0; i--) {
+        const d = new Date();
+        d.setDate(d.getDate() - i);
+        last7Days.push(d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
+        revenueData.push(0); 
+    }
+
+    // Process Revenue
+    appState.appointments.forEach(a => {
+        if (!a.slot || !a.slot.startTime) return;
+        const appDate = new Date(a.slot.startTime);
+        const dateStr = appDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        
+        const dayIdx = last7Days.indexOf(dateStr);
+        if (dayIdx !== -1) {
+            const mode = (a.paymentMode || '').toUpperCase();
+            if (a.status === 'COMPLETED' || mode === 'CARD' || mode === 'UPI') {
+                revenueData[dayIdx] += (a.doctor ? a.doctor.consultationFee : 0);
+            }
+        }
+    });
+
+    // Process Status
+    let booked = 0, completed = 0, cancelled = 0;
+    appState.appointments.forEach(a => {
+        if (a.status === 'BOOKED') booked++;
+        if (a.status === 'COMPLETED') completed++;
+        if (a.status === 'CANCELLED' || (a.status && a.status.startsWith('EXPIRED'))) cancelled++;
+    });
+
+    Chart.defaults.color = '#94a3b8';
+    Chart.defaults.font.family = "'Outfit', sans-serif";
+
+    // Chart 1: Revenue Trend
+    const revCtx = document.getElementById('revenueTrendChart');
+    if (revCtx) {
+        if (revenueChartInstance) revenueChartInstance.destroy();
+        
+        // Add a nice gradient fallback
+        let ctx = revCtx.getContext("2d");
+        let gradient = ctx.createLinearGradient(0, 0, 0, 400);
+        gradient.addColorStop(0, 'rgba(14, 165, 233, 0.4)');
+        gradient.addColorStop(1, 'rgba(14, 165, 233, 0.0)');
+
+        revenueChartInstance = new Chart(revCtx, {
+            type: 'line',
+            data: {
+                labels: last7Days,
+                datasets: [{
+                    label: 'Earnings (₹)',
+                    data: revenueData,
+                    borderColor: '#0ea5e9',
+                    backgroundColor: gradient,
+                    borderWidth: 3,
+                    pointBackgroundColor: '#0f172a',
+                    pointBorderColor: '#38bdf8',
+                    pointBorderWidth: 2,
+                    pointRadius: 4,
+                    pointHoverRadius: 6,
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { 
+                        beginAtZero: true, 
+                        grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                        border: { display: false }
+                    },
+                    x: {
+                        grid: { display: false },
+                        border: { display: false }
+                    }
+                }
+            }
+        });
+    }
+
+    // Chart 2: Status Breakdown
+    const statsCtx = document.getElementById('statusChart');
+    if (statsCtx) {
+        if (statusChartInstance) statusChartInstance.destroy();
+        
+        statusChartInstance = new Chart(statsCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Booked', 'Completed', 'Cancelled'],
+                datasets: [{
+                    data: [booked, completed, cancelled],
+                    backgroundColor: ['#0ea5e9', '#10b981', '#ef4444'],
+                    borderColor: '#0f172a',
+                    borderWidth: 2,
+                    hoverOffset: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '75%',
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: { color: '#f8fafc', padding: 20, usePointStyle: true }
+                    }
+                }
+            }
+        });
     }
 }
 

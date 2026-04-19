@@ -28,7 +28,7 @@
         <!-- Main Content -->
         <main class="main-content">
             <header class="dashboard-header" style="position: relative; z-index: 999;">
-                <h1>Welcome, <span id="headerPatientName">Loading...</span></h1>
+                <h1>Welcome, <span id="headerPatientName"><div class="skeleton skeleton-text" style="display: inline-block; width: 150px; margin: 0; vertical-align: middle;"></div></span></h1>
                 <div style="display: flex; gap: 1rem; align-items: center;">
                     <!-- Notification Bell -->
                     <div style="position: relative; cursor: pointer; padding: 0.5rem;" onclick="toggleNotifications()">
@@ -154,7 +154,18 @@
                             </thead>
                             <tbody>
                                 <tr>
-                                    <td colspan="5" class="text-center">Loading appointments...</td>
+                                    <td><div class="skeleton skeleton-text" style="width: 50%;"></div></td>
+                                    <td><div class="skeleton skeleton-text"></div></td>
+                                    <td><div class="skeleton skeleton-text"></div></td>
+                                    <td><div class="skeleton skeleton-text" style="width: 70%;"></div></td>
+                                    <td><div class="skeleton skeleton-text" style="width: 30%;"></div></td>
+                                </tr>
+                                <tr>
+                                    <td><div class="skeleton skeleton-text" style="width: 50%;"></div></td>
+                                    <td><div class="skeleton skeleton-text"></div></td>
+                                    <td><div class="skeleton skeleton-text"></div></td>
+                                    <td><div class="skeleton skeleton-text" style="width: 70%;"></div></td>
+                                    <td><div class="skeleton skeleton-text" style="width: 30%;"></div></td>
                                 </tr>
                             </tbody>
                         </table>
@@ -164,15 +175,41 @@
 
             <!-- Find Doctors Section -->
             <section id="doctors" class="dashboard-section">
-                <div style="display: flex; gap: 1rem; margin-bottom: 2rem;">
-                    <div class="input-group" style="flex: 1;">
+                <div style="display: flex; gap: 1rem; margin-bottom: 2rem; flex-wrap: wrap;">
+                    <div class="input-group" style="flex: 1; min-width: 250px;">
                         <input type="text" id="doctorSearchInput"
-                            placeholder="Search by Specialization (e.g., Cardiologist)" onkeyup="filterDoctors()"
-                            style="background: var(--glass-bg);">
+                            placeholder="Search by Specialization or Name..." oninput="filterDoctors()"
+                            style="background: var(--glass-bg); padding-right: 1rem;">
+                    </div>
+                    <div class="input-group" style="width: auto;">
+                        <select id="filterExperience" onchange="filterDoctors()" style="background: var(--glass-bg);">
+                            <option value="0">Any Experience</option>
+                            <option value="5">5+ Years</option>
+                            <option value="10">10+ Years</option>
+                            <option value="15">15+ Years</option>
+                        </select>
+                    </div>
+                    <div class="input-group" style="width: auto;">
+                        <select id="filterRating" onchange="filterDoctors()" style="background: var(--glass-bg);">
+                            <option value="0">Any Rating</option>
+                            <option value="4">⭐⭐⭐⭐ 4+ Stars</option>
+                            <option value="3">⭐⭐⭐ 3+ Stars</option>
+                            <option value="2">⭐⭐ 2+ Stars</option>
+                        </select>
+                    </div>
+                    <div class="input-group" style="width: auto;">
+                        <select id="filterFee" onchange="filterDoctors()" style="background: var(--glass-bg);">
+                            <option value="0">Any Fee</option>
+                            <option value="500">Under ₹500</option>
+                            <option value="1000">Under ₹1000</option>
+                            <option value="2000">Under ₹2000</option>
+                        </select>
                     </div>
                 </div>
                 <div class="dashboard-grid" id="doctorsGrid">
-                    <!-- Doctors injected here via JS -->
+                    <div class="skeleton skeleton-card glass-container"></div>
+                    <div class="skeleton skeleton-card glass-container"></div>
+                    <div class="skeleton skeleton-card glass-container"></div>
                 </div>
             </section>
 
@@ -183,14 +220,21 @@
                         <h2 class="section-title" style="color: var(--accent-color)">Test Reports & Diagnosis</h2>
                         <ul id="patientReportsList"
                             style="list-style: none; display: flex; flex-direction: column; gap: 1rem;">
-                            <!-- Dynamically loaded -->
+                            <li>
+                                <div class="skeleton skeleton-title"></div>
+                                <div class="skeleton skeleton-text"></div>
+                                <div class="skeleton skeleton-text" style="width: 60%"></div>
+                            </li>
                         </ul>
                     </div>
                     <div class="glass-container" style="padding: 2rem;">
                         <h2 class="section-title" style="color: var(--success-color)">Active Prescriptions</h2>
                         <ul id="patientPrescriptionsList"
                             style="list-style: none; display: flex; flex-direction: column; gap: 1rem;">
-                            <!-- Dynamically loaded -->
+                            <li>
+                                <div class="skeleton skeleton-title"></div>
+                                <div class="skeleton skeleton-text"></div>
+                            </li>
                         </ul>
                     </div>
                 </div>
@@ -203,7 +247,8 @@
                     <div style="display: flex; gap: 1rem; flex: 1; min-height: 0;">
                         <div id="chatContacts"
                             style="width: 30%; border-right: 1px solid var(--glass-border); overflow-y: auto; padding-right: 1rem; min-height: 0;">
-                            <p class="text-muted">Loading your doctors...</p>
+                            <div class="skeleton skeleton-text" style="height: 3rem; border-radius: 8px;"></div>
+                            <div class="skeleton skeleton-text" style="height: 3rem; border-radius: 8px;"></div>
                         </div>
                         <div style="flex: 1; display: flex; flex-direction: column; min-height: 0;">
                             <div id="chatMessages"
@@ -223,6 +268,34 @@
                     </div>
                 </div>
             </section>
+
+            <!-- Review Modal -->
+            <div id="reviewModal"
+                style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 1000; justify-content: center; align-items: center;">
+                <div class="glass-container" style="padding: 2.5rem; width: 90%; max-width: 500px; position: relative;">
+                    <h2 style="margin-bottom: 1.5rem; color: var(--primary-color);">Review Dr. <span id="reviewDoctorName"></span></h2>
+                    <input type="hidden" id="reviewDoctorId" />
+                    <div class="input-group" style="margin-bottom: 1.5rem;">
+                        <label>Rating (1-5)</label>
+                        <select id="reviewRating">
+                            <option value="5">⭐⭐⭐⭐⭐ 5 - Excellent</option>
+                            <option value="4">⭐⭐⭐⭐ 4 - Very Good</option>
+                            <option value="3">⭐⭐⭐ 3 - Good</option>
+                            <option value="2">⭐⭐ 2 - Fair</option>
+                            <option value="1">⭐ 1 - Poor</option>
+                        </select>
+                    </div>
+                    <div class="input-group" style="margin-bottom: 1.5rem;">
+                        <label>Your Review</label>
+                        <textarea id="reviewComment" rows="4" placeholder="How was your experience?"
+                            style="width: 100%; padding: 1rem; border-radius: 12px; background: rgba(0,0,0,0.3); border: 1px solid var(--glass-border); color: white;"></textarea>
+                    </div>
+                    <div style="display: flex; gap: 1rem; justify-content: flex-end;">
+                        <button class="btn-outline btn-small" onclick="closeReviewModal()">Cancel</button>
+                        <button class="btn-primary btn-small" onclick="submitReview()" style="margin: 0; width: auto;">Submit</button>
+                    </div>
+                </div>
+            </div>
 
         </main>
     </div>
@@ -285,6 +358,7 @@
 
     <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="../js/api.js"></script>
     <script src="../js/auth.js"></script>
     <script src="../js/patient.js"></script>

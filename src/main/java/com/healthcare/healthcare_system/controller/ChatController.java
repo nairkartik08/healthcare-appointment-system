@@ -1,9 +1,15 @@
 package com.healthcare.healthcare_system.controller;
 
 import com.healthcare.healthcare_system.dto.ChatRequest;
+import com.healthcare.healthcare_system.model.Appointment;
 import com.healthcare.healthcare_system.model.ChatMessage;
+import com.healthcare.healthcare_system.model.Doctor;
+import com.healthcare.healthcare_system.model.Patient;
 import com.healthcare.healthcare_system.model.User;
+import com.healthcare.healthcare_system.repository.AppointmentRepository;
 import com.healthcare.healthcare_system.repository.ChatMessageRepository;
+import com.healthcare.healthcare_system.repository.DoctorRepository;
+import com.healthcare.healthcare_system.repository.PatientRepository;
 import com.healthcare.healthcare_system.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -13,11 +19,13 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-
+import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.ArrayList;
 
 @Controller
 public class ChatController {
@@ -30,6 +38,15 @@ public class ChatController {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private AppointmentRepository appointmentRepository;
+
+    @Autowired
+    private PatientRepository patientRepository;
+
+    @Autowired
+    private DoctorRepository doctorRepository;
 
     @MessageMapping("/chat")
     public void processMessage(@Payload ChatRequest chatRequest) {
@@ -76,15 +93,52 @@ public class ChatController {
         User currentUser = userRepository.findById(userId).orElse(null);
         if (currentUser == null) return ResponseEntity.badRequest().build();
 
-        String targetRole = currentUser.getRole().name().equals("PATIENT") ? "CLINIC" : "PATIENT";
-        
-        List<User> contacts = userRepository.findAll().stream()
-                .filter(u -> u.getRole() != null && (u.getRole().name().equals(targetRole) || u.getRole().name().equals("DOCTOR")))
-                .map(u -> {
-                    u.setPassword(null);
-                    return u;
-                })
-                .collect(Collectors.toList());
-        return ResponseEntity.ok(contacts);
+        Set<User> contacts = new HashSet<>();
+
+        if (currentUser.getRole().name().equals("PATIENT")) {
+            Patient patient = patientRepository.findByUserId(userId).orElse(null);
+            if (patient != null) {
+                List<Appointment> appointments = appointmentRepository.findByPatientId(patient.getId());
+                Set<User> doctorUsers = appointments.stream()
+                        .map(Appointment::getDoctor)
+                        .filter(Objects::nonNull)
+                        .map(doctor -> {
+                            if (doctor.getUserId() != null) {
+                                return userRepository.findById(doctor.getUserId()).orElse(null);
+                            }
+                            return null;
+                        })
+                        .filter(Objects::nonNull)
+                        .map(u -> {
+                            u.setPassword(null);
+                            return u;
+                        })
+                        .collect(Collectors.toSet());
+                contacts.addAll(doctorUsers);
+            }
+        } else if (currentUser.getRole().name().equals("CLINIC") || currentUser.getRole().name().equals("DOCTOR")) {
+            Doctor doctor = doctorRepository.findByUserId(userId).orElse(null);
+            if (doctor != null) {
+                List<Appointment> appointments = appointmentRepository.findByDoctor(doctor);
+                Set<User> patientUsers = appointments.stream()
+                        .map(Appointment::getPatient)
+                        .filter(Objects::nonNull)
+                        .map(patient -> {
+                            if (patient.getUserId() != null) {
+                                return userRepository.findById(patient.getUserId()).orElse(null);
+                            }
+                            return null;
+                        })
+                        .filter(Objects::nonNull)
+                        .map(u -> {
+                            u.setPassword(null);
+                            return u;
+                        })
+                        .collect(Collectors.toSet());
+                contacts.addAll(patientUsers);
+            }
+        }
+
+        return ResponseEntity.ok(new ArrayList<>(contacts));
     }
 }

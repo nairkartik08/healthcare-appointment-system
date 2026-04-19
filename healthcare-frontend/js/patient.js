@@ -11,7 +11,8 @@ let appState = {
     appointments: [],
     invoices: [],
     records: [],
-    prescriptions: []
+    prescriptions: [],
+    reviewedDoctorIds: new Set()
 };
 
 // --- Initialization ---
@@ -121,7 +122,14 @@ async function updateProfile() {
 
 async function loadAppointments() {
     try {
-        appState.appointments = await apiFetch(`/patient/appointments/${currentUser.patientId}`);
+        const [appts, reviewedIds] = await Promise.all([
+            apiFetch(`/patient/appointments/${currentUser.patientId}`),
+            apiFetch(`/reviews/patient/${currentUser.patientId}/doctors`)
+        ]);
+        appState.appointments = appts;
+        if (reviewedIds) {
+            appState.reviewedDoctorIds = new Set(reviewedIds);
+        }
         renderAppointments();
     } catch (err) {
         console.error("Failed to load appointments:", err);
@@ -171,7 +179,16 @@ function renderAppointments() {
     tbody.innerHTML = '';
 
     if (!appState.appointments || appState.appointments.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="5" class="text-center">No appointments found.</td></tr>';
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="5" class="text-center" style="padding: 3rem;">
+                    <div style="font-size: 3rem; margin-bottom: 1rem;">📅</div>
+                    <h3 style="color: var(--text-main); margin-bottom: 0.5rem;">No Appointments Yet</h3>
+                    <p class="text-muted" style="margin-bottom: 1.5rem;">You haven't booked any appointments.</p>
+                    <button class="btn-primary btn-small" onclick="switchSection('doctors')" style="width: auto;">Find a Doctor</button>
+                </td>
+            </tr>
+        `;
         document.getElementById('metricsAppointments').textContent = '0';
         return;
     }
@@ -193,14 +210,23 @@ function renderAppointments() {
         const dateObj = app.slot ? new Date(app.slot.startTime) : null;
         const timeDisplay = dateObj ? dateObj.toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : 'N/A';
 
+        let actionBtn = '-';
+        if (app.status === 'BOOKED') {
+            actionBtn = `<button class="btn-outline btn-danger btn-small" onclick="cancelAppointment(${app.id})">Cancel</button>`;
+        } else if (app.status === 'COMPLETED' && app.doctor) {
+            if (appState.reviewedDoctorIds.has(app.doctor.id)) {
+                actionBtn = `<span class="badge" style="color: var(--success-color); border: 1px solid var(--glass-border); padding: 0.3rem 0.6rem; border-radius: 4px; font-size: 0.8rem; font-weight: 500; background: rgba(34, 197, 94, 0.1);">⭐ Reviewed</span>`;
+            } else {
+                actionBtn = `<button class="btn-outline btn-success btn-small" onclick="openReviewModal(${app.doctor.id}, '${app.doctor.name}')">Leave Review</button>`;
+            }
+        }
+        
         tr.innerHTML = `
             <td>#${app.id}</td>
             <td>Dr. ${app.doctor ? app.doctor.name : 'Unknown'}</td>
             <td>${timeDisplay}</td>
             <td>${statusBadge}</td>
-            <td>
-                ${app.status === 'BOOKED' ? `<button class="btn-outline btn-danger btn-small" onclick="cancelAppointment(${app.id})">Cancel</button>` : '-'}
-            </td>
+            <td>${actionBtn}</td>
         `;
         tbody.appendChild(tr);
     });
@@ -211,7 +237,13 @@ function renderDoctors(doctorsList) {
     grid.innerHTML = '';
 
     if (!doctorsList || doctorsList.length === 0) {
-        grid.innerHTML = '<p class="text-muted">No doctors available</p>';
+        grid.innerHTML = `
+            <div style="grid-column: 1 / -1; text-align: center; padding: 4rem; background: var(--glass-bg); border-radius: 12px; border: 1px dashed var(--glass-border);">
+                <div style="font-size: 3.5rem; margin-bottom: 1rem;">👨‍⚕️</div>
+                <h3 style="color: var(--text-main); margin-bottom: 0.5rem;">No Doctors Found</h3>
+                <p class="text-muted">We couldn't find any doctors matching your criteria.</p>
+            </div>
+        `;
         return;
     }
 
@@ -229,7 +261,7 @@ function renderDoctors(doctorsList) {
                 </div>
             </div>
             <div style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 0.5rem;">
-                ⭐ ${doc.rating} | 🗓️ ${doc.experienceYears} Years Exp.
+                ⭐ ${doc.rating > 0 ? doc.rating : 'New'} | 🗓️ ${doc.experienceYears || 0} Years Exp.
             </div>
             <div style="font-size: 1.1rem; font-weight: 600; margin-bottom: 1.2rem;">
                 ₹${doc.consultationFee} <span style="font-size: 0.8rem; font-weight: normal; color: var(--text-muted)">/ visit</span>
@@ -246,7 +278,13 @@ function renderRecordsAndPrescriptions() {
     if(recordsList) {
         recordsList.innerHTML = '';
         if(!appState.records || appState.records.length === 0) {
-            recordsList.innerHTML = '<li class="text-muted">No medical records found.</li>';
+            recordsList.innerHTML = `
+                <li style="text-align: center; padding: 2rem;">
+                    <div style="font-size: 2.5rem; margin-bottom: 1rem; opacity: 0.7;">🩺</div>
+                    <div style="color: var(--text-main); font-weight: 500;">No Medical Records</div>
+                    <div style="font-size: 0.9rem; color: var(--text-muted); margin-top: 0.3rem;">Your diagnosis history will appear here.</div>
+                </li>
+            `;
         } else {
             appState.records.forEach(rec => {
                 const li = document.createElement('li');
@@ -267,14 +305,24 @@ function renderRecordsAndPrescriptions() {
     if(prescList) {
         prescList.innerHTML = '';
         if(!appState.prescriptions || appState.prescriptions.length === 0) {
-            prescList.innerHTML = '<li class="text-muted">No active prescriptions.</li>';
+            prescList.innerHTML = `
+                <li style="text-align: center; padding: 2rem;">
+                    <div style="font-size: 2.5rem; margin-bottom: 1rem; opacity: 0.7;">💊</div>
+                    <div style="color: var(--text-main); font-weight: 500;">No Active Prescriptions</div>
+                    <div style="font-size: 0.9rem; color: var(--text-muted); margin-top: 0.3rem;">You have no prescribed medications right now.</div>
+                </li>
+            `;
         } else {
             appState.prescriptions.forEach(p => {
                 const li = document.createElement('li');
-                li.style.cssText = "border-bottom: 1px solid var(--glass-border); padding-bottom: 1rem;";
+                li.style.cssText = "border-bottom: 1px solid var(--glass-border); padding-bottom: 1rem; display: flex; justify-content: space-between; align-items: center;";
                 li.innerHTML = `
-                    <div style="font-weight: 600; color: var(--text-main); font-size: 1.1rem">${p.medicineName}</div>
-                    <div style="font-size: 0.9rem; color: var(--text-muted)">Dosage: ${p.dosage} | Duration: ${p.duration}</div>
+                    <div>
+                        <div style="font-weight: 600; color: var(--text-main); font-size: 1.1rem">${p.medicineName}</div>
+                        <div style="font-size: 0.8rem; color: var(--primary-color); margin-bottom: 0.3rem;">Prescribed by Dr. ${p.doctor ? p.doctor.name : 'Unknown'}</div>
+                        <div style="font-size: 0.9rem; color: var(--text-muted)">Dosage: ${p.dosage} | Duration: ${p.duration}</div>
+                    </div>
+                    <button class="btn-outline btn-small" style="white-space: nowrap; margin: 0; align-self: center;" onclick="downloadPrescription(${p.id})">⬇ Download PDF</button>
                 `;
                 prescList.appendChild(li);
             });
@@ -289,10 +337,20 @@ function renderRecordsAndPrescriptions() {
 // --- Interactions ---
 function filterDoctors() {
     const query = document.getElementById('doctorSearchInput').value.toLowerCase();
-    const filtered = appState.doctors.filter(d => 
-        (d.name && d.name.toLowerCase().includes(query)) || 
-        (d.specialization && d.specialization.toLowerCase().includes(query))
-    );
+    const exp = parseInt(document.getElementById('filterExperience').value) || 0;
+    const rating = parseInt(document.getElementById('filterRating').value) || 0;
+    const fee = parseInt(document.getElementById('filterFee').value) || 0;
+
+    const filtered = appState.doctors.filter(d => {
+        const matchesQuery = (d.name && d.name.toLowerCase().includes(query)) || 
+                             (d.specialization && d.specialization.toLowerCase().includes(query));
+        const matchesExp = (d.experienceYears || 0) >= exp;
+        const matchesRating = (d.rating || 0) >= rating;
+        const matchesFee = fee === 0 || (d.consultationFee || 0) <= fee;
+        
+        return matchesQuery && matchesExp && matchesRating && matchesFee;
+    });
+    
     renderDoctors(filtered);
 }
 
@@ -534,3 +592,139 @@ loadPatientProfile = async function() {
     await _originalLoadPatientProfile();
     await loadNotifications();
 };
+
+// --- PDF Generation Logic ---
+async function downloadPrescription(id) {
+    if (!window.jspdf || !window.jspdf.jsPDF) {
+        alert("PDF generator not yet loaded. Please try again in a moment.");
+        return;
+    }
+    const { jsPDF } = window.jspdf;
+    
+    const p = appState.prescriptions.find(x => x.id === id);
+    if (!p) {
+        alert("Prescription details not found.");
+        return;
+    }
+
+    const doc = new jsPDF();
+    
+    // Theme Colors
+    const primaryColor = [15, 23, 42]; // Dark Slate
+    const secondaryColor = [56, 189, 248]; // Accent Blue
+
+    // Header rect
+    doc.setFillColor(...primaryColor);
+    doc.rect(0, 0, 210, 40, 'F');
+    
+    // Header Title
+    doc.setTextColor(255, 255, 255);
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(24);
+    doc.text("MEDICAL PRESCRIPTION", 105, 20, { align: "center" });
+    
+    // Subtext
+    doc.setFontSize(12);
+    doc.setFont("helvetica", "normal");
+    doc.setTextColor(200, 200, 200);
+    doc.text("Generated by Healthcare Portal", 105, 28, { align: "center" });
+
+    // Body Setup
+    doc.setTextColor(0, 0, 0);
+
+    // Doctor & Patient Info 
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(14);
+    doc.text("Doctor Details:", 20, 60);
+    doc.text("Patient Details:", 120, 60);
+
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(12);
+    doc.text(`Dr. ${p.doctor ? p.doctor.name : 'Unknown Doctor'}`, 20, 70);
+    
+    const patientName = p.patient ? p.patient.name : currentUser.name;
+    doc.text(`Name: ${patientName}`, 120, 70);
+    
+    const issuedDate = new Date().toLocaleDateString();
+    doc.text(`Date Issued: ${issuedDate}`, 120, 78);
+
+    // Divider Line
+    doc.setDrawColor(200, 200, 200);
+    doc.line(20, 90, 190, 90);
+
+    // Prescription Details Section
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(16);
+    doc.setTextColor(...secondaryColor);
+    doc.text("Rx", 20, 110);
+    
+    doc.setTextColor(0, 0, 0);
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(14);
+    doc.text("Medicine Information", 20, 130);
+
+    // Table-like structure
+    doc.setFontSize(12);
+    doc.setFont("helvetica", "bold");
+    doc.text("Medicine / Drug", 30, 145);
+    doc.text("Dosage", 100, 145);
+    doc.text("Duration", 150, 145);
+    
+    doc.setFont("helvetica", "normal");
+    doc.text(`${p.medicineName}`, 30, 155);
+    doc.text(`${p.dosage}`, 100, 155);
+    doc.text(`${p.duration}`, 150, 155);
+
+    // Footer
+    doc.setFontSize(10);
+    doc.setTextColor(150, 150, 150);
+    doc.text("This is an electronically generated prescription and does not require a physical signature.", 105, 280, { align: "center" });
+
+    doc.save(`Prescription_${patientName.replace(/\s+/g, '_')}_${issuedDate.replace(/\//g, '-')}.pdf`);
+}
+
+// --- Review Logic ---
+function openReviewModal(doctorId, doctorName) {
+    document.getElementById('reviewDoctorId').value = doctorId;
+    document.getElementById('reviewDoctorName').textContent = doctorName;
+    document.getElementById('reviewRating').value = '5';
+    document.getElementById('reviewComment').value = '';
+    document.getElementById('reviewModal').style.display = 'flex';
+}
+
+function closeReviewModal() {
+    document.getElementById('reviewModal').style.display = 'none';
+}
+
+async function submitReview() {
+    const doctorId = document.getElementById('reviewDoctorId').value;
+    const rating = document.getElementById('reviewRating').value;
+    const comment = document.getElementById('reviewComment').value.trim();
+
+    if (!comment) return alert("Please write a short review.");
+
+    try {
+        const response = await apiFetch('/reviews/add', {
+            method: 'POST',
+            body: JSON.stringify({
+                patientId: currentUser.patientId,
+                doctorId: parseInt(doctorId),
+                rating: parseInt(rating),
+                comment: comment
+            })
+        });
+        
+        if (response && response.error) {
+            alert(response.error);
+        } else {
+            alert("Review submitted successfully! Thank you.");
+            appState.reviewedDoctorIds.add(parseInt(doctorId));
+            renderAppointments();
+        }
+        closeReviewModal();
+    } catch (err) {
+        console.error(err);
+        alert(err.message || "Failed to submit review. You may have already reviewed this doctor.");
+        closeReviewModal();
+    }
+}
