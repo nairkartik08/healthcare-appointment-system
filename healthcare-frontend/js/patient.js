@@ -763,7 +763,10 @@ async function checkSymptoms() {
         });
         
         resultBox.style.display = 'block';
-        messageEl.innerHTML = response.recommendation || "Unable to determine. Please consult a General Physician.";
+        let recommendationText = response.recommendation || "Unable to determine. Please consult a General Physician.";
+        // Parse Gemini Markdown bolding to HTML
+        recommendationText = recommendationText.replace(/\*\*(.*?)\*\*/g, '<strong style="color: #a855f7;">$1</strong>');
+        messageEl.innerHTML = recommendationText;
         
         // Auto-search logic: If the recommendation contains a known specialization, auto-filter the table
         const lowerRec = (response.recommendation || "").toLowerCase();
