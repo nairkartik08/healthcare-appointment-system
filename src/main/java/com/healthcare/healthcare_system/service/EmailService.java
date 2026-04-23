@@ -51,4 +51,23 @@ public class EmailService {
             // We just log the error so that the appointment booking doesn't fail just because email failed
         }
     }
+
+    public void sendAppointmentReminderToPatient(String toPatientEmail, String patientName, String doctorName, String timeSlot) {
+        System.out.println("🔥 [DEBUG] Sending Appointment Reminder to Patient: " + toPatientEmail);
+        try {
+            SimpleMailMessage message = new SimpleMailMessage();
+            message.setFrom(fromEmail);
+            message.setTo(toPatientEmail);
+            message.setSubject("Upcoming Appointment Reminder");
+            message.setText("Dear " + patientName + ",\n\n" +
+                    "This is a reminder that you have an appointment with Dr. " + doctorName + " in less than an hour.\n" +
+                    "Time: " + timeSlot + "\n\n" +
+                    "Thank you,\nHealthcare Portal Team");
+            
+            javaMailSender.send(message);
+            System.out.println("✅ [DEBUG] Appointment Reminder sent successfully to Patient: " + toPatientEmail);
+        } catch (Exception e) {
+            System.out.println("❌ [DEBUG] Failed to send email to " + toPatientEmail + ". Error: " + e.getMessage());
+        }
+    }
 }

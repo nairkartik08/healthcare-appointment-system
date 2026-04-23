@@ -36,4 +36,7 @@ public class User {
 
     @Column(name = "otp_expiry_time")
     private java.time.LocalDateTime otpExpiryTime;
+
+    @Transient
+    private String name;
 }

@@ -27,13 +27,15 @@ public class PatientController {
     private final PatientService patientService;
     private final MedicalRecordService medicalRecordService;
     private final com.healthcare.healthcare_system.repository.PatientNotificationRepository patientNotificationRepository;
+    private final com.healthcare.healthcare_system.repository.PatientRepository patientRepository;
 
     public PatientController(DoctorService doctorService,
                              SlotService slotService,
                              AppointmentService appointmentService,
                              PatientService patientService,
                              MedicalRecordService medicalRecordService,
-                             com.healthcare.healthcare_system.repository.PatientNotificationRepository patientNotificationRepository) {
+                             com.healthcare.healthcare_system.repository.PatientNotificationRepository patientNotificationRepository,
+                             com.healthcare.healthcare_system.repository.PatientRepository patientRepository) {
 
         this.doctorService = doctorService;
         this.slotService = slotService;
@@ -41,6 +43,7 @@ public class PatientController {
         this.patientService = patientService;
         this.medicalRecordService = medicalRecordService;
         this.patientNotificationRepository = patientNotificationRepository;
+        this.patientRepository = patientRepository;
     }
     @GetMapping("/doctors")
     public List<Doctor> getDoctors() {
@@ -87,9 +90,22 @@ public class PatientController {
     }
 
     @PutMapping("/update/{id}")
-    public Patient updatePatient(@PathVariable Long id,
-                                 @RequestBody Patient patient) {
-        return patientService.updatePatient(id, patient);
+    public Patient updatePatient(@PathVariable Long id, @RequestBody Patient patientDetails) {
+        Patient patient = patientRepository.findById(id).orElseThrow(() -> new RuntimeException("Patient not found"));
+
+        if (patientDetails.getName() != null) patient.setName(patientDetails.getName());
+        if (patientDetails.getAge() > 0) patient.setAge(patientDetails.getAge());
+        if (patientDetails.getEmail() != null) patient.setEmail(patientDetails.getEmail());
+        if (patientDetails.getMobileNo() != null) patient.setMobileNo(patientDetails.getMobileNo());
+        if (patientDetails.getGender() != null) patient.setGender(patientDetails.getGender());
+        if (patientDetails.getDob() != null) patient.setDob(patientDetails.getDob());
+        if (patientDetails.getBloodGroup() != null) patient.setBloodGroup(patientDetails.getBloodGroup());
+        if (patientDetails.getAddress() != null) patient.setAddress(patientDetails.getAddress());
+        if (patientDetails.getEmergencyContact() != null) patient.setEmergencyContact(patientDetails.getEmergencyContact());
+        if (patientDetails.getExistingDiseases() != null) patient.setExistingDiseases(patientDetails.getExistingDiseases());
+        if (patientDetails.getInsuranceProvider() != null) patient.setInsuranceProvider(patientDetails.getInsuranceProvider());
+
+        return patientRepository.save(patient);
     }
 
     @PutMapping("/reschedule/{appointmentId}")

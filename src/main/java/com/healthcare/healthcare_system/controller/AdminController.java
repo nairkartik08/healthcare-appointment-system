@@ -40,4 +40,15 @@ public class AdminController {
     public com.healthcare.healthcare_system.model.Admin getAdminByUserId(@PathVariable Long userId) {
         return adminRepository.findByUserId(userId).orElse(null);
     }
+
+    @PutMapping("/update/{id}")
+    public com.healthcare.healthcare_system.model.Admin updateAdmin(@PathVariable Long id, @RequestBody com.healthcare.healthcare_system.model.Admin adminDetails) {
+        com.healthcare.healthcare_system.model.Admin admin = adminRepository.findById(id).orElseThrow(() -> new RuntimeException("Admin not found"));
+        
+        if (adminDetails.getFullName() != null) admin.setFullName(adminDetails.getFullName());
+        if (adminDetails.getContactNumber() != null) admin.setContactNumber(adminDetails.getContactNumber());
+        if (adminDetails.getDepartment() != null) admin.setDepartment(adminDetails.getDepartment());
+        
+        return adminRepository.save(admin);
+    }
 }

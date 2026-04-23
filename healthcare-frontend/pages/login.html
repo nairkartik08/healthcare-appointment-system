@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,6 +8,7 @@
     <link rel="stylesheet" href="../css/styles.css">
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
 </head>
+
 <body>
 
     <div class="auth-wrapper">
@@ -28,7 +30,7 @@
                     <label>Email</label>
                     <input type="email" id="email" placeholder="Enter your email" />
                 </div>
-                
+
                 <div class="input-group">
                     <label>Password</label>
                     <input type="password" id="password" placeholder="Enter your password" />
@@ -39,7 +41,7 @@
                 <p class="text-center" style="margin-top: 1rem;">
                     Don't have an account? <a href="register.html">Register here</a>
                 </p>
-                
+
                 <div id="errorMsg" class="status-msg error-msg" style="margin-top: 1rem; display: none;"></div>
             </div>
         </div>
@@ -50,11 +52,11 @@
     <script>
         // Slightly update the display of errors to handle display:none toggling
         const originalLogin = login;
-        window.login = async function() {
+        window.login = async function () {
             const errorMsg = document.getElementById("errorMsg");
             errorMsg.style.display = 'none';
             errorMsg.classList.remove('show');
-            
+
             // Watch changes in auth.js logic - intercepting the error assignment to show the box
             const observer = new MutationObserver((mutations) => {
                 mutations.forEach((mutation) => {
@@ -70,7 +72,7 @@
                 });
             });
             observer.observe(errorMsg, { childList: true });
-            
+
             await originalLogin();
         };
 
@@ -87,4 +89,5 @@
         });
     </script>
 </body>
+
 </html>

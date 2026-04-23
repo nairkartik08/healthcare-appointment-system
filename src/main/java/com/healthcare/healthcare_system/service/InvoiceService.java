@@ -12,4 +12,6 @@ public interface InvoiceService {
 
     List<Invoice> getAllInvoices();
 
+    void cancelInvoiceForAppointment(Long appointmentId);
+
 }

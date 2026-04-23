@@ -68,8 +68,8 @@ async function loadChatContacts() {
             div.style.borderBottom = "1px solid var(--glass-border)";
             div.style.cursor = "pointer";
             div.style.borderRadius = "4px";
-            // Check identity, if username is patient use username or email
-            const displayName = contact.username || contact.email || `User #${contact.id}`;
+            // Check identity, prioritize actual name, then username, then email
+            const displayName = contact.name || contact.username || contact.email || `User #${contact.id}`;
             div.innerHTML = `<strong>${displayName}</strong><br><small>${contact.role}</small>`;
             
             div.onclick = () => {

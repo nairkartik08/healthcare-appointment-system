@@ -24,6 +24,9 @@ public class Appointment {
     @Column(name = "payment_mode")
     private String paymentMode;
 
+    @Column(name = "reminder_sent")
+    private Boolean reminderSent = false;
+
     public Appointment() {}
 
     public Long getId() { return id; }
@@ -42,4 +45,7 @@ public class Appointment {
 
     public String getPaymentMode() { return paymentMode; }
     public void setPaymentMode(String paymentMode) { this.paymentMode = paymentMode; }
+
+    public Boolean getReminderSent() { return reminderSent; }
+    public void setReminderSent(Boolean reminderSent) { this.reminderSent = reminderSent; }
 }

@@ -97,6 +97,11 @@ public class AppointmentServiceImpl implements AppointmentService {
              );
         }
 
+        // Generate pending invoice for Pay at Clinic
+        if ("CLINIC".equalsIgnoreCase(paymentMode)) {
+            invoiceService.generateInvoice(savedAppointment.getId());
+        }
+
         return savedAppointment;
     }
 
@@ -126,6 +131,7 @@ public class AppointmentServiceImpl implements AppointmentService {
         slot.setBooked(false);
 
         slotRepository.save(slot);
+        invoiceService.cancelInvoiceForAppointment(id);
 
         return appointmentRepository.save(appointment);
     }

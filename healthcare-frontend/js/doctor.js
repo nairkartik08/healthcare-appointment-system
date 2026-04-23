@@ -24,6 +24,14 @@ document.addEventListener("DOMContentLoaded", async () => {
         console.warn("Role mismatch: Expected DOCTOR/CLINIC");
     }
 
+    // Set min date for slot creation
+    const slotDateInput = document.getElementById('slotDate');
+    if (slotDateInput) {
+        const today = new Date();
+        const localDate = new Date(today.getTime() - today.getTimezoneOffset() * 60000).toISOString().split('T')[0];
+        slotDateInput.setAttribute('min', localDate);
+    }
+
     await loadDoctorProfile();
     if (currentUser.doctorId) {
         await loadDoctorAppointments();
@@ -86,6 +94,48 @@ async function loadDoctorProfile() {
     } catch (err) {
         console.error("Failed to load doctor profile:", err);
         alert("Error loading doctor profile. Please contact admin.");
+    }
+}
+
+async function updateDoctorProfile() {
+    const name = document.getElementById('docName').value;
+    const mobileNo = document.getElementById('docMobile').value;
+    const experienceYears = parseInt(document.getElementById('docExp').value) || 0;
+    const consultationFee = parseFloat(document.getElementById('docFee').value) || 0;
+    const clinicAddress = document.getElementById('docAddress').value;
+    const availableDays = document.getElementById('docDays').value;
+    const availableTimeSlots = document.getElementById('docSlots').value;
+
+    const msgBox = document.getElementById('docProfileStatusMsg');
+    
+    try {
+        await apiFetch(`/doctor/update/${currentUser.doctorId}`, {
+            method: 'PUT',
+            body: JSON.stringify({
+                name, mobileNo, experienceYears, consultationFee,
+                clinicAddress, availableDays, availableTimeSlots
+            })
+        });
+        
+        document.getElementById('headerDoctorName').textContent = name;
+        currentUser.name = name;
+        
+        if (msgBox) {
+            msgBox.textContent = "Profile updated successfully!";
+            msgBox.className = "status-msg success-msg show";
+            setTimeout(() => msgBox.classList.remove('show'), 3000);
+        } else {
+            alert("Profile updated successfully!");
+        }
+    } catch (err) {
+        console.error("Failed to update profile", err);
+        if (msgBox) {
+            msgBox.textContent = "Error updating profile.";
+            msgBox.className = "status-msg error-msg show";
+            setTimeout(() => msgBox.classList.remove('show'), 3000);
+        } else {
+            alert("Error updating profile.");
+        }
     }
 }
 
@@ -266,6 +316,10 @@ async function createSlot() {
     if(!slotDate || !startTime) return alert("Select date and time");
 
     const finalDateTime = `${slotDate}T${startTime}:00`;
+    
+    if (new Date(finalDateTime) < new Date()) {
+        return alert("Cannot create a slot in the past.");
+    }
 
     try {
         await apiFetch(`/clinic/create-slot/${currentUser.doctorId}`, {

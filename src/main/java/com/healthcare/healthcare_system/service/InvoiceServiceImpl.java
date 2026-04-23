@@ -59,4 +59,16 @@ public class InvoiceServiceImpl implements InvoiceService {
     public List<Invoice> getAllInvoices() {
         return invoiceRepository.findAll();
     }
+
+    @Override
+    public void cancelInvoiceForAppointment(Long appointmentId) {
+        Optional<Invoice> existingInvoice = invoiceRepository.findByAppointmentId(appointmentId);
+        if (existingInvoice.isPresent()) {
+            Invoice invoice = existingInvoice.get();
+            if ("PENDING".equalsIgnoreCase(invoice.getStatus()) || "UNPAID".equalsIgnoreCase(invoice.getStatus())) {
+                invoice.setStatus("CANCELLED");
+                invoiceRepository.save(invoice);
+            }
+        }
+    }
 }

@@ -31,10 +31,12 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     await loadPatientProfile();
     if (currentUser.patientId) {
-        await loadAppointments();
-        await loadDoctors();
-        await loadBilling();
-        await loadRecordsAndPrescriptions();
+        await Promise.all([
+            loadAppointments(),
+            loadDoctors(),
+            loadBilling(),
+            loadRecordsAndPrescriptions()
+        ]);
     }
 });
 
@@ -791,3 +793,10 @@ async function checkSymptoms() {
         btn.disabled = false;
     }
 }
+
+// Auto-refresh notifications every minute so users don't have to manually refresh the page
+setInterval(() => {
+    if (currentUser.patientId) {
+        loadNotifications();
+    }
+}, 60000);

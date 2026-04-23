@@ -18,7 +18,6 @@
                 <div class="nav-item" onclick="switchSection('profile')">👤 Doctor Profile</div>
                 <div class="nav-item" onclick="switchSection('appointments')">📅 My Appointments</div>
                 <div class="nav-item" onclick="switchSection('slots')">⏰ My Available Slots</div>
-                <div class="nav-item" onclick="switchSection('patients')">👥 My Patients</div>
                 <div class="nav-item" onclick="switchSection('campaign')">📢 Announcements</div>
                 <div class="nav-item" onclick="switchSection('reviews')">⭐ Patient Reviews</div>
                 <div class="nav-item" onclick="switchSection('chat')">💬 Chat</div>
@@ -31,7 +30,10 @@
         <!-- Main Content -->
         <main class="main-content">
             <header class="dashboard-header">
-                <h1>Welcome, Dr. <span id="headerDoctorName"><div class="skeleton skeleton-text" style="display: inline-block; width: 150px; margin: 0; vertical-align: middle;"></div></span></h1>
+                <h1>Welcome, Dr. <span id="headerDoctorName">
+                        <div class="skeleton skeleton-text"
+                            style="display: inline-block; width: 150px; margin: 0; vertical-align: middle;"></div>
+                    </span></h1>
                 <div class="user-profile-badge">
                     <span>Doctor</span>
                 </div>
@@ -56,16 +58,20 @@
                 </div>
 
                 <!-- Advanced Analytics Dashboards -->
-                <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem; margin-top: 1rem; position: relative; z-index: 1;">
+                <div
+                    style="display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem; margin-top: 1rem; position: relative; z-index: 1;">
                     <div class="metric-card glass-container" style="padding: 1.5rem; overflow: hidden;">
                         <h3 style="margin-bottom: 1rem; color: var(--primary-color);">Revenue Trend (Last 7 Days)</h3>
                         <div style="position: relative; height: 300px; width: 100%;">
                             <canvas id="revenueTrendChart"></canvas>
                         </div>
                     </div>
-                    <div class="metric-card glass-container" style="padding: 1.5rem; overflow: hidden; display: flex; flex-direction: column; align-items: center;">
-                        <h3 style="margin-bottom: 1rem; color: var(--accent-color); align-self: flex-start;">Appointments by Status</h3>
-                        <div style="position: relative; height: 300px; width: 100%; display: flex; justify-content: center;">
+                    <div class="metric-card glass-container"
+                        style="padding: 1.5rem; overflow: hidden; display: flex; flex-direction: column; align-items: center;">
+                        <h3 style="margin-bottom: 1rem; color: var(--accent-color); align-self: flex-start;">
+                            Appointments by Status</h3>
+                        <div
+                            style="position: relative; height: 300px; width: 100%; display: flex; justify-content: center;">
                             <canvas id="statusChart"></canvas>
                         </div>
                     </div>
@@ -77,60 +83,63 @@
                 <div class="glass-container" style="padding: 2.5rem; max-width: 800px;">
                     <h2 class="section-title">My Profile</h2>
 
+                    <div id="docProfileStatusMsg" class="status-msg"></div>
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
                         <div class="input-group">
                             <label>Full Name</label>
-                            <input type="text" id="docName" readonly />
+                            <input type="text" id="docName" />
                         </div>
                         <div class="input-group">
                             <label>Email Address</label>
-                            <input type="text" id="docEmail" readonly />
+                            <input type="text" id="docEmail" readonly style="opacity: 0.7;" />
                         </div>
                         <div class="input-group">
                             <label>Mobile Number</label>
-                            <input type="text" id="docMobile" readonly />
+                            <input type="text" id="docMobile" />
                         </div>
                         <div class="input-group">
                             <label>Gender</label>
-                            <input type="text" id="docGender" readonly />
+                            <input type="text" id="docGender" readonly style="opacity: 0.7;" />
                         </div>
                         <div class="input-group">
                             <label>Specialization</label>
-                            <input type="text" id="docSpec" readonly />
+                            <input type="text" id="docSpec" readonly style="opacity: 0.7;" />
                         </div>
                         <div class="input-group">
                             <label>Qualification</label>
-                            <input type="text" id="docQual" readonly />
+                            <input type="text" id="docQual" readonly style="opacity: 0.7;" />
                         </div>
                         <div class="input-group">
                             <label>Experience (Years)</label>
-                            <input type="text" id="docExp" readonly />
+                            <input type="text" id="docExp" />
                         </div>
                         <div class="input-group">
                             <label>License Number</label>
-                            <input type="text" id="docLicense" readonly />
+                            <input type="text" id="docLicense" readonly style="opacity: 0.7;" />
                         </div>
                         <div class="input-group">
                             <label>Hospital Name</label>
-                            <input type="text" id="docHospital" readonly />
+                            <input type="text" id="docHospital" readonly style="opacity: 0.7;" />
                         </div>
                         <div class="input-group">
                             <label>Consultation Fee (₹)</label>
-                            <input type="text" id="docFee" readonly />
+                            <input type="text" id="docFee" />
                         </div>
                         <div class="input-group" style="grid-column: span 2;">
                             <label>Clinic Address</label>
-                            <input type="text" id="docAddress" readonly />
+                            <input type="text" id="docAddress" />
                         </div>
                         <div class="input-group">
                             <label>Available Days</label>
-                            <input type="text" id="docDays" readonly />
+                            <input type="text" id="docDays" />
                         </div>
                         <div class="input-group">
                             <label>Available Slots</label>
-                            <input type="text" id="docSlots" readonly />
+                            <input type="text" id="docSlots" />
                         </div>
                     </div>
+                    <button class="btn-primary" style="margin-top: 1.5rem;" onclick="updateDoctorProfile()">Update
+                        Profile</button>
                 </div>
             </section>
 
@@ -151,18 +160,42 @@
                             </thead>
                             <tbody>
                                 <tr>
-                                    <td><div class="skeleton skeleton-text" style="width: 50%;"></div></td>
-                                    <td><div class="skeleton skeleton-text"></div><div class="skeleton skeleton-text" style="width: 60%"></div></td>
-                                    <td><div class="skeleton skeleton-text"></div><div class="skeleton skeleton-text" style="width: 60%"></div></td>
-                                    <td><div class="skeleton skeleton-text" style="width: 70%;"></div></td>
-                                    <td><div class="skeleton skeleton-text" style="width: 30%;"></div></td>
+                                    <td>
+                                        <div class="skeleton skeleton-text" style="width: 50%;"></div>
+                                    </td>
+                                    <td>
+                                        <div class="skeleton skeleton-text"></div>
+                                        <div class="skeleton skeleton-text" style="width: 60%"></div>
+                                    </td>
+                                    <td>
+                                        <div class="skeleton skeleton-text"></div>
+                                        <div class="skeleton skeleton-text" style="width: 60%"></div>
+                                    </td>
+                                    <td>
+                                        <div class="skeleton skeleton-text" style="width: 70%;"></div>
+                                    </td>
+                                    <td>
+                                        <div class="skeleton skeleton-text" style="width: 30%;"></div>
+                                    </td>
                                 </tr>
                                 <tr>
-                                    <td><div class="skeleton skeleton-text" style="width: 50%;"></div></td>
-                                    <td><div class="skeleton skeleton-text"></div><div class="skeleton skeleton-text" style="width: 60%"></div></td>
-                                    <td><div class="skeleton skeleton-text"></div><div class="skeleton skeleton-text" style="width: 60%"></div></td>
-                                    <td><div class="skeleton skeleton-text" style="width: 70%;"></div></td>
-                                    <td><div class="skeleton skeleton-text" style="width: 30%;"></div></td>
+                                    <td>
+                                        <div class="skeleton skeleton-text" style="width: 50%;"></div>
+                                    </td>
+                                    <td>
+                                        <div class="skeleton skeleton-text"></div>
+                                        <div class="skeleton skeleton-text" style="width: 60%"></div>
+                                    </td>
+                                    <td>
+                                        <div class="skeleton skeleton-text"></div>
+                                        <div class="skeleton skeleton-text" style="width: 60%"></div>
+                                    </td>
+                                    <td>
+                                        <div class="skeleton skeleton-text" style="width: 70%;"></div>
+                                    </td>
+                                    <td>
+                                        <div class="skeleton skeleton-text" style="width: 30%;"></div>
+                                    </td>
                                 </tr>
                             </tbody>
                         </table>
@@ -189,15 +222,6 @@
                 </div>
             </section>
 
-            <!-- My Patients Placeholder -->
-            <section id="patients" class="dashboard-section">
-                <div class="glass-container" style="padding: 2rem;">
-                    <h2 class="section-title">My Patients (Coming Soon)</h2>
-                    <p class="text-muted">A dedicated module for managing medical records and prescriptions for your
-                        specific patients.</p>
-                </div>
-            </section>
-
             <!-- Campaign Section -->
             <section id="campaign" class="dashboard-section">
                 <div class="glass-container" style="padding: 2rem; max-width: 800px;">
@@ -205,10 +229,6 @@
                     <p class="text-muted" style="margin-bottom: 1.5rem;">Notify targeted patients of unscheduled absence
                         or announcements.</p>
 
-                    <div class="input-group" style="margin-bottom: 1rem;">
-                        <label>Doctor name</label>
-                        <input type="text" id="campName" placeholder="e.g. Doctor" />
-                    </div>
                     <div class="input-group" style="margin-bottom: 1rem;">
                         <label>Notification Title</label>
                         <input type="text" id="campTitle" placeholder="e.g. Doctor Unavailable Notice" />
@@ -293,7 +313,8 @@
             <section id="reviews" class="dashboard-section">
                 <div class="glass-container" style="padding: 2.5rem;">
                     <h2 class="section-title">Patient Reviews</h2>
-                    <div id="doctorReviewsList" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem;">
+                    <div id="doctorReviewsList"
+                        style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem;">
                         <div class="text-muted">Loading reviews...</div>
                     </div>
                 </div>
@@ -319,7 +340,7 @@
                                 <input type="text" id="chatInput" placeholder="Type a message..."
                                     style="flex: 1; padding: 0.8rem 1.2rem; border-radius: 12px; border: 1px solid var(--glass-border); background: rgba(0,0,0,0.3); color: var(--text-main); outline: none;"
                                     disabled onkeypress="if(event.key === 'Enter') sendChatMessage()" />
-                                <button class="btn-primary" id="chatSendBtn" 
+                                <button class="btn-primary" id="chatSendBtn"
                                     style="margin: 0; width: auto; padding: 0 1.5rem; height: auto;"
                                     onclick="sendChatMessage()" disabled>Send</button>
                             </div>

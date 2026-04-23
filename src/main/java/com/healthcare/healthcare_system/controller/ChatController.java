@@ -111,6 +111,7 @@ public class ChatController {
                         .filter(Objects::nonNull)
                         .map(u -> {
                             u.setPassword(null);
+                            doctorRepository.findByUserId(u.getId()).ifPresent(d -> u.setName(d.getName()));
                             return u;
                         })
                         .collect(Collectors.toSet());
@@ -132,6 +133,7 @@ public class ChatController {
                         .filter(Objects::nonNull)
                         .map(u -> {
                             u.setPassword(null);
+                            patientRepository.findByUserId(u.getId()).ifPresent(p -> u.setName(p.getName()));
                             return u;
                         })
                         .collect(Collectors.toSet());

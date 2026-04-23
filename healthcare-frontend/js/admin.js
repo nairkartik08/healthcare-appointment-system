@@ -31,10 +31,12 @@ document.addEventListener("DOMContentLoaded", async () => {
     await loadAdminProfile();
     // Proceed to load dashboard if adminId is set, or if user explicitly holds admin role
     if (currentUser.adminId || currentUser.role === "ROLE_ADMIN" || currentUser.role === "ADMIN") {
-        await loadClinicAppointments();
-        await loadClinicDoctors();
-        await loadPatients();
-        await loadBilling();
+        await Promise.all([
+            loadClinicAppointments(),
+            loadClinicDoctors(),
+            loadPatients(),
+            loadBilling()
+        ]);
     }
 });
 
@@ -109,6 +111,43 @@ async function loadAdminProfile() {
     } catch (err) {
         console.error("Failed to load admin profile:", err);
         document.getElementById('headerClinicName').textContent = currentUser.name || "Administrator";
+    }
+}
+
+async function updateAdminProfile() {
+    const fullName = document.getElementById('adminName').value;
+    const department = document.getElementById('adminDepartment').value;
+    const contactNumber = document.getElementById('adminContact').value;
+    
+    const msgBox = document.getElementById('adminProfileStatusMsg');
+    
+    try {
+        await apiFetch(`/admin/update/${currentUser.adminId}`, {
+            method: 'PUT',
+            body: JSON.stringify({
+                fullName, department, contactNumber
+            })
+        });
+        
+        document.getElementById('headerClinicName').textContent = fullName;
+        currentUser.name = fullName;
+        
+        if (msgBox) {
+            msgBox.textContent = "Profile updated successfully!";
+            msgBox.className = "status-msg success-msg show";
+            setTimeout(() => msgBox.classList.remove('show'), 3000);
+        } else {
+            alert("Profile updated successfully!");
+        }
+    } catch (err) {
+        console.error("Failed to update profile", err);
+        if (msgBox) {
+            msgBox.textContent = "Error updating profile.";
+            msgBox.className = "status-msg error-msg show";
+            setTimeout(() => msgBox.classList.remove('show'), 3000);
+        } else {
+            alert("Error updating profile.");
+        }
     }
 }
 
@@ -295,9 +334,9 @@ function renderDoctors() {
             <div style="color: var(--primary-color); font-size: 0.9rem; margin-bottom: 0.5rem;">${doc.specialization} | Exp: ${doc.experienceYears || 0}y</div>
             <div style="font-size: 0.9rem; margin-bottom: 1rem; color: var(--text-muted); line-height: 1.5;">
                 <strong>License:</strong> ${doc.licenseNumber || 'N/A'}<br>
-                ${doc.licenseCertificateUrl ? `<a href="../${doc.licenseCertificateUrl}" target="_blank" style="color: var(--primary); font-size:0.85rem;">📄 License</a> | ` : ''}
-                ${doc.degreeUrl ? `<a href="../${doc.degreeUrl}" target="_blank" style="color: var(--primary); font-size:0.85rem;">📄 Degree</a> | ` : ''}
-                ${doc.hospitalIdUrl ? `<a href="../${doc.hospitalIdUrl}" target="_blank" style="color: var(--primary); font-size:0.85rem;">📄 ID</a>` : ''}
+                ${doc.licenseCertificateUrl ? `<a href="${BASE_URL}/${doc.licenseCertificateUrl}" target="_blank" style="color: var(--primary); font-size:0.85rem;">📄 License</a> | ` : ''}
+                ${doc.degreeUrl ? `<a href="${BASE_URL}/${doc.degreeUrl}" target="_blank" style="color: var(--primary); font-size:0.85rem;">📄 Degree</a> | ` : ''}
+                ${doc.hospitalIdUrl ? `<a href="${BASE_URL}/${doc.hospitalIdUrl}" target="_blank" style="color: var(--primary); font-size:0.85rem;">📄 ID</a>` : ''}
             </div>
             <div style="display: flex; gap: 0.5rem;">
                 ${status === 'PENDING_APPROVAL' ? `
@@ -347,6 +386,11 @@ async function addDoctor() {
 function openSlotModal(doctorId, docName) {
     document.getElementById('slotDoctorId').value = doctorId;
     document.getElementById('slotDoctorName').textContent = "Dr. " + docName;
+    
+    const today = new Date();
+    const localDate = new Date(today.getTime() - today.getTimezoneOffset() * 60000).toISOString().split('T')[0];
+    document.getElementById('slotDate').setAttribute('min', localDate);
+    
     document.getElementById('slotModal').style.display = 'block';
 }
 
@@ -358,6 +402,10 @@ async function createSlot() {
     if(!slotDate || !startTime) return alert("Select date and time");
 
     const finalDateTime = `${ slotDate }T${ startTime }:00`;
+    
+    if (new Date(finalDateTime) < new Date()) {
+        return alert("Cannot create a slot in the past.");
+    }
 
     try {
         await apiFetch(`/clinic/create-slot/${doctorId}`, {
