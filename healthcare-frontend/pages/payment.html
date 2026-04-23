@@ -129,6 +129,29 @@
             to { transform: rotate(360deg); }
         }
 
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: rgba(16, 185, 129, 0.95);
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            z-index: 10000;
+            transform: translateX(150%);
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            border: 1px solid rgba(255,255,255,0.1);
+            font-weight: 500;
+        }
+
+        .toast.show {
+            transform: translateX(0);
+        }
+
         @media (max-width: 768px) {
             .payment-wrapper {
                 grid-template-columns: 1fr;
@@ -142,6 +165,11 @@
         <div class="spinner"></div>
         <h2 style="margin:0;">Processing Secure Payment...</h2>
         <p style="color: var(--text-muted); margin-top: 0.5rem;">Please do not close or refresh this page.</p>
+    </div>
+
+    <div id="paymentToast" class="toast">
+        <span style="font-size: 1.2rem;">✅</span>
+        <span id="toastMessage">Payment Successful!</span>
     </div>
 
     <div class="payment-wrapper">

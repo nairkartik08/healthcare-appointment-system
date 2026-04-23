@@ -85,8 +85,17 @@ async function processPayment() {
         
         // 3. Cleanup & Success feedback
         localStorage.removeItem('pendingBooking');
-        alert(`Payment Successful (${selectedPaymentMode})! Your appointment is confirmed.`);
-        window.location.href = "patient.html";
+        
+        const toast = document.getElementById('paymentToast');
+        if (toast) {
+            toast.classList.add('show');
+        } else {
+            alert(`Payment Successful (${selectedPaymentMode})! Your appointment is confirmed.`);
+        }
+
+        setTimeout(() => {
+            window.location.href = "patient.html";
+        }, 2500);
     } catch (err) {
         console.error("Payment API Error:", err);
         loader.style.display = "none";
