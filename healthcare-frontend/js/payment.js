@@ -87,10 +87,19 @@ async function processPayment() {
         localStorage.removeItem('pendingBooking');
         
         const toast = document.getElementById('paymentToast');
-        if (toast) {
+        const toastMsg = document.getElementById('toastMessage');
+        
+        if (toast && toastMsg) {
+            if (selectedPaymentMode === 'CLINIC') {
+                toastMsg.textContent = "Booking Confirmed! Pay at clinic.";
+                toast.style.background = "rgba(14, 165, 233, 0.95)"; // Blue for info/clinic
+            } else {
+                toastMsg.textContent = "Payment Successful! Appointment confirmed.";
+                toast.style.background = "rgba(16, 185, 129, 0.95)"; // Green for success
+            }
             toast.classList.add('show');
         } else {
-            alert(`Payment Successful (${selectedPaymentMode})! Your appointment is confirmed.`);
+            alert(`Booking Successful (${selectedPaymentMode})!`);
         }
 
         setTimeout(() => {
