@@ -42,7 +42,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 function switchSection(sectionId) {
     document.querySelectorAll('.nav-item').forEach(item => {
         item.classList.remove('active');
-        if(item.getAttribute('onclick').includes(sectionId)) {
+        if (item.getAttribute('onclick').includes(sectionId)) {
             item.classList.add('active');
         }
     });
@@ -51,7 +51,7 @@ function switchSection(sectionId) {
         section.classList.remove('active');
     });
     const target = document.getElementById(sectionId);
-    if(target) {
+    if (target) {
         target.classList.add('active');
         if (sectionId === 'campaign') {
             loadCampaignHistory();
@@ -74,12 +74,12 @@ async function loadDoctorProfile() {
             alert("Doctor profile not found.");
             return;
         }
-        
+
         currentUser.doctorId = doctorData.id;
         currentUser.name = doctorData.name;
-        
+
         document.getElementById('headerDoctorName').textContent = doctorData.name;
-        
+
         // Populate profile form (read-only for now)
         document.getElementById('docName').value = doctorData.name || '';
         document.getElementById('docEmail').value = doctorData.email || '';
@@ -94,13 +94,13 @@ async function loadDoctorProfile() {
         document.getElementById('docAddress').value = doctorData.clinicAddress || '';
         document.getElementById('docDays').value = doctorData.availableDays || '';
         document.getElementById('docSlots').value = doctorData.availableTimeSlots || '';
-        
+
         // Set default notification title
         const campTitleInput = document.getElementById('campTitle');
         if (campTitleInput) {
             campTitleInput.value = `Dr. ${doctorData.name}`;
         }
-        
+
     } catch (err) {
         console.error("Failed to load doctor profile:", err);
         alert("Error loading doctor profile. Please contact admin.");
@@ -117,7 +117,7 @@ async function updateDoctorProfile() {
     const availableTimeSlots = document.getElementById('docSlots').value;
 
     const msgBox = document.getElementById('docProfileStatusMsg');
-    
+
     try {
         await apiFetch(`/doctor/update/${currentUser.doctorId}`, {
             method: 'PUT',
@@ -126,10 +126,10 @@ async function updateDoctorProfile() {
                 clinicAddress, availableDays, availableTimeSlots
             })
         });
-        
+
         document.getElementById('headerDoctorName').textContent = name;
         currentUser.name = name;
-        
+
         if (msgBox) {
             msgBox.textContent = "Profile updated successfully!";
             msgBox.className = "status-msg success-msg show";
@@ -156,31 +156,31 @@ async function loadDoctorAppointments() {
         // Wait, the backend has /clinic/appointments which fetches ALL appointments. 
         // In a real scenario we'd query /doctor/appointments/{id}. 
         const allAppts = await apiFetch(`/clinic/appointments`);
-        
+
         appState.appointments = allAppts.filter(a => a.doctor && a.doctor.id === currentUser.doctorId);
         renderAppointments();
-        
+
         // Calculate metrics
         document.getElementById('metricsTodayAppts').textContent = appState.appointments.length;
-        
+
         // Simple distinct patients logic
         const patientSet = new Set();
         let totalRevenue = 0;
         const today = new Date().toDateString();
-        
+
         appState.appointments.forEach(a => {
-            if(a.patient) patientSet.add(a.patient.id);
-            
+            if (a.patient) patientSet.add(a.patient.id);
+
             // Calculate today's earnings
             const appDateStr = a.slot && a.slot.startTime ? new Date(a.slot.startTime).toDateString() : '';
             if (appDateStr === today) {
                 const mode = (a.paymentMode || '').toUpperCase();
-                if(a.status === 'COMPLETED' || mode === 'CARD' || mode === 'UPI') {
+                if (a.status === 'COMPLETED' || mode === 'CARD' || mode === 'UPI') {
                     totalRevenue += (a.doctor ? a.doctor.consultationFee : 0);
                 }
             }
         });
-        
+
         document.getElementById('metricsPatients').textContent = patientSet.size;
         document.getElementById('metricsRevenue').textContent = totalRevenue;
 
@@ -212,13 +212,13 @@ function renderAppointments() {
 
     appState.appointments.forEach(app => {
         const tr = document.createElement('tr');
-        
+
         let statusBadge = app.status;
-        if(app.status === 'BOOKED') statusBadge = `<span style="color: var(--primary-color)">BOOKED</span>`;
-        if(app.status === 'CANCELLED') statusBadge = `<span style="color: var(--danger-color)">CANCELLED</span>`;
-        if(app.status === 'COMPLETED') statusBadge = `<span style="color: var(--success-color)">COMPLETED</span>`;
-        if(app.status === 'EXPIRED') statusBadge = `<span style="color: #64748b; font-weight: bold;">EXPIRED</span>`;
-        if(app.status === 'EXPIRED_REFUNDED') statusBadge = `<span style="color: #38bdf8; font-weight: bold;">REFUNDED</span>`;
+        if (app.status === 'BOOKED') statusBadge = `<span style="color: var(--primary-color)">BOOKED</span>`;
+        if (app.status === 'CANCELLED') statusBadge = `<span style="color: var(--danger-color)">CANCELLED</span>`;
+        if (app.status === 'COMPLETED') statusBadge = `<span style="color: var(--success-color)">COMPLETED</span>`;
+        if (app.status === 'EXPIRED') statusBadge = `<span style="color: #64748b; font-weight: bold;">EXPIRED</span>`;
+        if (app.status === 'EXPIRED_REFUNDED') statusBadge = `<span style="color: #38bdf8; font-weight: bold;">REFUNDED</span>`;
 
         let formattedDateTime = '-';
         if (app.slot && app.slot.startTime) {
@@ -230,7 +230,7 @@ function renderAppointments() {
 
         let paymentStatusHtml = '';
         const pMode = (app.paymentMode || '').toUpperCase();
-        if(pMode === 'CARD' || pMode === 'UPI') {
+        if (pMode === 'CARD' || pMode === 'UPI') {
             paymentStatusHtml = `<div style="font-size:0.85rem; margin-top: 4px; color: var(--success-color)">Paid</div>`;
         } else {
             paymentStatusHtml = `<div style="font-size:0.85rem; margin-top: 4px; color: var(--danger-color)">Not Paid (Clinic)</div>`;
@@ -241,7 +241,7 @@ function renderAppointments() {
             <td>
                  <div style="font-weight: 500; font-size: 1.05rem;">${app.patient ? app.patient.name : 'Unknown Patient'}</div>
                  <div style="font-size:0.85rem; color:var(--text-muted); margin-top: 4px; line-height: 1.4;">
-                     ${app.patient && app.patient.mobileNo ? '📞 '+app.patient.mobileNo : ''}
+                     ${app.patient && app.patient.mobileNo ? '📞 ' + app.patient.mobileNo : ''}
                  </div>
             </td>
             <td>${formattedDateTime}</td>
@@ -261,7 +261,7 @@ function openCompletionModal(id) {
 
     document.getElementById('modalApptId').value = id;
     document.getElementById('modalPatientName').textContent = patientName;
-    
+
     // Reset Form
     document.getElementById('recordDiagnosis').value = '';
     document.getElementById('recordSymptoms').value = '';
@@ -279,7 +279,7 @@ function closeCompletionModal() {
 
 async function submitCompletion() {
     const id = document.getElementById('modalApptId').value;
-    if(!id) return;
+    if (!id) return;
 
     // Record Data
     const diagnosis = document.getElementById('recordDiagnosis').value.trim();
@@ -308,7 +308,7 @@ async function submitCompletion() {
 
         // Mark as Complete
         await apiFetch(`/patient/complete/${id}`, { method: 'PUT' });
-        
+
         closeCompletionModal();
         await loadDoctorAppointments();
         alert("Appointment completed successfully!");
@@ -323,10 +323,10 @@ async function createSlot() {
     const slotDate = document.getElementById('slotDate').value;
     const startTime = document.getElementById('slotStartTime').value;
 
-    if(!slotDate || !startTime) return alert("Select date and time");
+    if (!slotDate || !startTime) return alert("Select date and time");
 
     const finalDateTime = `${slotDate}T${startTime}:00`;
-    
+
     if (new Date(finalDateTime) < new Date()) {
         return alert("Cannot create a slot in the past.");
     }
@@ -339,7 +339,7 @@ async function createSlot() {
         alert("Slot added to your schedule.");
         document.getElementById('slotDate').value = "";
         document.getElementById('slotStartTime').value = "";
-    } catch(err) {
+    } catch (err) {
         console.error(err);
         alert("Failed to create slot.");
     }
@@ -348,11 +348,11 @@ async function createSlot() {
 // approveAppointment logic was folded into submitCompletion() over openCompletionModal()
 
 async function cancelAppointmentAdmin(appointmentId) {
-    if(!confirm("Cancel this appointment?")) return;
+    if (!confirm("Cancel this appointment?")) return;
     try {
         await apiFetch(`/appointments/cancel/${appointmentId}`, { method: 'PUT' });
         await loadDoctorAppointments();
-    } catch(err) {
+    } catch (err) {
         console.error(err);
         alert("Cancellation failed.");
     }
@@ -397,7 +397,7 @@ function populateCampaignPatients() {
 
 // Call this at the end of loadDoctorAppointments
 const _originalLoadDoctorAppointments = loadDoctorAppointments;
-loadDoctorAppointments = async function() {
+loadDoctorAppointments = async function () {
     await _originalLoadDoctorAppointments();
     populateCampaignPatients();
 };
@@ -405,7 +405,7 @@ loadDoctorAppointments = async function() {
 async function createCampaign() {
     const campNameInput = document.getElementById('campName');
     const campaignName = campNameInput ? campNameInput.value.trim() : "Direct Notification";
-    
+
     const notificationTitle = document.getElementById('campTitle').value.trim();
     const message = document.getElementById('campMessage').value.trim();
 
@@ -431,7 +431,7 @@ async function createCampaign() {
             })
         });
         alert("Campaign created and notifications sent successfully!");
-        
+
         // Reset form
         document.getElementById('campName').value = '';
         document.getElementById('campTitle').value = '';
@@ -456,7 +456,7 @@ async function loadCampaignHistory() {
     try {
         const history = await apiFetch(`/doctor/campaign/history/${currentUser.doctorId}`);
         listDiv.innerHTML = '';
-        
+
         if (!history || history.length === 0) {
             listDiv.innerHTML = `
                 <div style="text-align: center; padding: 2rem; background: rgba(255,255,255,0.02); border-radius: 8px; border: 1px dashed var(--glass-border);">
@@ -471,9 +471,9 @@ async function loadCampaignHistory() {
         history.forEach(camp => {
             const div = document.createElement('div');
             div.style.cssText = "background: rgba(255,255,255,0.05); padding: 1.5rem; border-radius: 8px; border-left: 4px solid var(--primary-color);";
-            
+
             const printDate = camp.createdAt ? new Date(camp.createdAt).toLocaleString() : 'Just now';
-            
+
             div.innerHTML = `
                 <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.8rem;">
                     <strong style="color: white; font-size: 1.1rem;">${camp.campaignName}</strong>
@@ -495,13 +495,13 @@ async function loadCampaignHistory() {
 async function loadDoctorReviews() {
     const listDiv = document.getElementById('doctorReviewsList');
     if (!listDiv) return;
-    
+
     if (!currentUser.doctorId) return;
 
     try {
         const reviews = await apiFetch(`/reviews/doctor/${currentUser.doctorId}`);
         listDiv.innerHTML = '';
-        
+
         if (!reviews || reviews.length === 0) {
             listDiv.innerHTML = `
                 <div style="grid-column: 1 / -1; text-align: center; padding: 2rem; background: rgba(255,255,255,0.02); border-radius: 8px; border: 1px dashed var(--glass-border);">
@@ -516,16 +516,16 @@ async function loadDoctorReviews() {
         reviews.forEach(rev => {
             const div = document.createElement('div');
             div.style.cssText = "background: rgba(255,255,255,0.05); padding: 1.5rem; border-radius: 12px; border: 1px solid var(--glass-border);";
-            
-            const printDate = rev.createdAt ? new Date(rev.createdAt).toLocaleString('en-US', {month: 'short', day: 'numeric', year: 'numeric'}) : 'Just now';
+
+            const printDate = rev.createdAt ? new Date(rev.createdAt).toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'Just now';
             const renderStars = (rating) => {
                 let stars = '';
-                for(let i=0; i<5; i++) {
+                for (let i = 0; i < 5; i++) {
                     stars += i < rating ? '⭐' : '<span style="opacity:0.3">⭐</span>';
                 }
                 return stars;
             }
-            
+
             div.innerHTML = `
                 <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.8rem;">
                     <strong style="color: white; font-size: 1.1rem;">${rev.patientName}</strong>
@@ -552,13 +552,13 @@ function renderAnalytics() {
 
     const last7Days = [];
     const revenueData = [];
-    
+
     // Generate dates
     for (let i = 6; i >= 0; i--) {
         const d = new Date();
         d.setDate(d.getDate() - i);
         last7Days.push(d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
-        revenueData.push(0); 
+        revenueData.push(0);
     }
 
     // Process Revenue
@@ -566,7 +566,7 @@ function renderAnalytics() {
         if (!a.slot || !a.slot.startTime) return;
         const appDate = new Date(a.slot.startTime);
         const dateStr = appDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-        
+
         const dayIdx = last7Days.indexOf(dateStr);
         if (dayIdx !== -1) {
             const mode = (a.paymentMode || '').toUpperCase();
@@ -591,7 +591,7 @@ function renderAnalytics() {
     const revCtx = document.getElementById('revenueTrendChart');
     if (revCtx) {
         if (revenueChartInstance) revenueChartInstance.destroy();
-        
+
         // Add a nice gradient fallback
         let ctx = revCtx.getContext("2d");
         let gradient = ctx.createLinearGradient(0, 0, 0, 400);
@@ -622,8 +622,8 @@ function renderAnalytics() {
                 maintainAspectRatio: false,
                 plugins: { legend: { display: false } },
                 scales: {
-                    y: { 
-                        beginAtZero: true, 
+                    y: {
+                        beginAtZero: true,
                         grid: { color: 'rgba(255, 255, 255, 0.05)' },
                         border: { display: false }
                     },
@@ -640,7 +640,7 @@ function renderAnalytics() {
     const statsCtx = document.getElementById('statusChart');
     if (statsCtx) {
         if (statusChartInstance) statusChartInstance.destroy();
-        
+
         statusChartInstance = new Chart(statsCtx, {
             type: 'doughnut',
             data: {
