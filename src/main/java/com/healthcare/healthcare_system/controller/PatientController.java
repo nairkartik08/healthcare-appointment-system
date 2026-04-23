@@ -91,21 +91,7 @@ public class PatientController {
 
     @PutMapping("/update/{id}")
     public Patient updatePatient(@PathVariable Long id, @RequestBody Patient patientDetails) {
-        Patient patient = patientRepository.findById(id).orElseThrow(() -> new RuntimeException("Patient not found"));
-
-        if (patientDetails.getName() != null) patient.setName(patientDetails.getName());
-        if (patientDetails.getAge() > 0) patient.setAge(patientDetails.getAge());
-        if (patientDetails.getEmail() != null) patient.setEmail(patientDetails.getEmail());
-        if (patientDetails.getMobileNo() != null) patient.setMobileNo(patientDetails.getMobileNo());
-        if (patientDetails.getGender() != null) patient.setGender(patientDetails.getGender());
-        if (patientDetails.getDob() != null) patient.setDob(patientDetails.getDob());
-        if (patientDetails.getBloodGroup() != null) patient.setBloodGroup(patientDetails.getBloodGroup());
-        if (patientDetails.getAddress() != null) patient.setAddress(patientDetails.getAddress());
-        if (patientDetails.getEmergencyContact() != null) patient.setEmergencyContact(patientDetails.getEmergencyContact());
-        if (patientDetails.getExistingDiseases() != null) patient.setExistingDiseases(patientDetails.getExistingDiseases());
-        if (patientDetails.getInsuranceProvider() != null) patient.setInsuranceProvider(patientDetails.getInsuranceProvider());
-
-        return patientRepository.save(patient);
+        throw new RuntimeException("Profile updates are disabled for security reasons. Please contact support.");
     }
 
     @PutMapping("/reschedule/{appointmentId}")

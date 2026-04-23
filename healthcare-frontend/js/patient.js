@@ -55,7 +55,13 @@ function switchSection(sectionId) {
         section.classList.remove('active');
     });
     const target = document.getElementById(sectionId);
-    if(target) target.classList.add('active');
+    if(target) {
+        target.classList.add('active');
+        if (sectionId === 'chat') {
+            const badge = document.getElementById('chatBadge');
+            if (badge) badge.style.display = 'none';
+        }
+    }
 }
 
 // --- Data Fetching ---

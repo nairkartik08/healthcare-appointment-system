@@ -43,12 +43,6 @@ public class AdminController {
 
     @PutMapping("/update/{id}")
     public com.healthcare.healthcare_system.model.Admin updateAdmin(@PathVariable Long id, @RequestBody com.healthcare.healthcare_system.model.Admin adminDetails) {
-        com.healthcare.healthcare_system.model.Admin admin = adminRepository.findById(id).orElseThrow(() -> new RuntimeException("Admin not found"));
-        
-        if (adminDetails.getFullName() != null) admin.setFullName(adminDetails.getFullName());
-        if (adminDetails.getContactNumber() != null) admin.setContactNumber(adminDetails.getContactNumber());
-        if (adminDetails.getDepartment() != null) admin.setDepartment(adminDetails.getDepartment());
-        
-        return adminRepository.save(admin);
+        throw new RuntimeException("Profile updates are disabled for security reasons. Please contact support.");
     }
 }

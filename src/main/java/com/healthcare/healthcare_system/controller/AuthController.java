@@ -60,7 +60,7 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest request) {
+    public ResponseEntity<?> login(@RequestBody LoginRequest request) {
         System.out.println("\n--- 🟢 [LOGIN START] ---");
         System.out.println("👉 Attempting login for email: [" + request.getEmail() + "]");
 
@@ -77,11 +77,10 @@ public class AuthController {
 
         } catch (org.springframework.security.core.AuthenticationException e) {
             System.out.println("❌ Step 1: Authentication Failed | Message: " + e.getMessage());
-            throw e;
+            return ResponseEntity.status(401).body(java.util.Map.of("message", "Invalid credentials. Please check your email and password."));
         } catch (Throwable t) {
             System.err.println("🚨 CRITICAL ERROR during Step 1: " + t.getMessage());
-            t.printStackTrace();
-            throw new RuntimeException("Internal error during authentication: " + t.getMessage());
+            return ResponseEntity.status(500).body(java.util.Map.of("message", "Internal error during authentication: " + t.getMessage()));
         }
 
         try {
@@ -107,7 +106,7 @@ public class AuthController {
 
             if ("PENDING_APPROVAL".equals(user.getApprovalStatus())) {
                 System.out.println("❌ Step 4: Account PENDING_APPROVAL");
-                throw new RuntimeException("Your account is pending admin approval. Please check back later.");
+                return ResponseEntity.status(403).body(java.util.Map.of("message", "Your account is pending admin approval. Please check back later."));
             }
             System.out.println("✅ Step 4: User verified and approved");
             
@@ -123,12 +122,10 @@ public class AuthController {
 
         } catch (Exception e) {
             System.err.println("🚨 ERROR during Post-Auth steps: " + e.getMessage());
-            e.printStackTrace();
-            throw e;
+            return ResponseEntity.status(400).body(java.util.Map.of("message", e.getMessage()));
         } catch (Throwable t) {
             System.err.println("🚨 CRITICAL SYSTEM ERROR during Post-Auth: " + t.getMessage());
-            t.printStackTrace();
-            throw new RuntimeException("Critical system error: " + t.getMessage());
+            return ResponseEntity.status(500).body(java.util.Map.of("message", "Critical system error: " + t.getMessage()));
         }
     }
 }

@@ -99,16 +99,6 @@ public class DoctorController {
 
     @PutMapping("/update/{id}")
     public Doctor updateDoctor(@PathVariable Long id, @RequestBody Doctor doctorDetails) {
-        Doctor doctor = doctorRepository.findById(id).orElseThrow(() -> new RuntimeException("Doctor not found"));
-        
-        if (doctorDetails.getName() != null) doctor.setName(doctorDetails.getName());
-        if (doctorDetails.getMobileNo() != null) doctor.setMobileNo(doctorDetails.getMobileNo());
-        if (doctorDetails.getExperienceYears() != null) doctor.setExperienceYears(doctorDetails.getExperienceYears());
-        if (doctorDetails.getConsultationFee() != null) doctor.setConsultationFee(doctorDetails.getConsultationFee());
-        if (doctorDetails.getClinicAddress() != null) doctor.setClinicAddress(doctorDetails.getClinicAddress());
-        if (doctorDetails.getAvailableDays() != null) doctor.setAvailableDays(doctorDetails.getAvailableDays());
-        if (doctorDetails.getAvailableTimeSlots() != null) doctor.setAvailableTimeSlots(doctorDetails.getAvailableTimeSlots());
-        
-        return doctorRepository.save(doctor);
+        throw new RuntimeException("Profile updates are disabled for security reasons. Please contact support.");
     }
 }

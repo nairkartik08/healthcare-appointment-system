@@ -34,19 +34,41 @@ body {
 
 /* Animations */
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes slideInRight {
-  from { opacity: 0; transform: translateX(30px); }
-  to { opacity: 1; transform: translateX(0); }
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
 
 @keyframes float {
-  0% { transform: translateY(0px); }
-  50% { transform: translateY(-15px); }
-  100% { transform: translateY(0px); }
+  0% {
+    transform: translateY(0px);
+  }
+
+  50% {
+    transform: translateY(-15px);
+  }
+
+  100% {
+    transform: translateY(0px);
+  }
 }
 
 /* Glassmorphism Classes */
@@ -107,7 +129,7 @@ body {
   -webkit-backdrop-filter: blur(10px);
   border-radius: 30px;
   border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
   animation: float 6s ease-in-out infinite;
 }
 
@@ -322,26 +344,27 @@ a:hover {
 /* Responsive adjustments */
 @media (max-width: 900px) {
   .auth-wrapper {
-    flex-direction: column !important; /* Stack vertically for both login/register */
+    flex-direction: column !important;
+    /* Stack vertically for both login/register */
   }
-  
+
   .auth-graphic {
     flex: none;
     height: 35vh;
   }
-  
+
   .auth-headline h1 {
     font-size: 2.5rem;
   }
-  
+
   .auth-headline p {
     font-size: 1rem;
   }
-  
+
   .auth-form-container {
     padding: 1.5rem;
   }
-  
+
   .auth-card {
     padding: 2.5rem 1.5rem;
   }
@@ -516,7 +539,8 @@ table {
   border-collapse: collapse;
 }
 
-th, td {
+th,
+td {
   padding: 1.2rem;
   text-align: left;
   border-bottom: 1px solid var(--glass-border);
@@ -544,14 +568,35 @@ tr:hover {
   transition: all 0.2s ease;
 }
 
-.btn-success { background: rgba(16, 185, 129, 0.2); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3); }
-.btn-success:hover { background: rgba(16, 185, 129, 0.4); }
+.btn-success {
+  background: rgba(16, 185, 129, 0.2);
+  color: #10b981;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
 
-.btn-danger { background: rgba(239, 68, 68, 0.2); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3); }
-.btn-danger:hover { background: rgba(239, 68, 68, 0.4); }
+.btn-success:hover {
+  background: rgba(16, 185, 129, 0.4);
+}
 
-.btn-outline { background: transparent; color: var(--primary-color); border: 1px solid var(--primary-color); }
-.btn-outline:hover { background: rgba(14, 165, 233, 0.1); }
+.btn-danger {
+  background: rgba(239, 68, 68, 0.2);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.btn-danger:hover {
+  background: rgba(239, 68, 68, 0.4);
+}
+
+.btn-outline {
+  background: transparent;
+  color: var(--primary-color);
+  border: 1px solid var(--primary-color);
+}
+
+.btn-outline:hover {
+  background: rgba(14, 165, 233, 0.1);
+}
 
 /* Skeleton Loaders */
 .skeleton {
@@ -562,8 +607,13 @@ tr:hover {
 }
 
 @keyframes shimmer {
-  0% { background-position: 200% 0; }
-  100% { background-position: -200% 0; }
+  0% {
+    background-position: 200% 0;
+  }
+
+  100% {
+    background-position: -200% 0;
+  }
 }
 
 .skeleton-text {
@@ -581,4 +631,17 @@ tr:hover {
 .skeleton-card {
   height: 250px;
   width: 100%;
+}
+
+/* Notification Dot */
+.notification-dot {
+  position: absolute;
+  top: 12px;
+  right: 15px;
+  width: 10px;
+  height: 10px;
+  background-color: var(--danger-color);
+  border-radius: 50%;
+  border: 2px solid rgba(3, 7, 18, 0.7);
+  box-shadow: 0 0 8px rgba(239, 68, 68, 0.6);
 }

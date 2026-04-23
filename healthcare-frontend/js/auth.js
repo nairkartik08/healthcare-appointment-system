@@ -37,7 +37,12 @@ async function login() {
 
   } catch (err) {
     console.error(err);
-    errorMsg.textContent = "Invalid credentials. Please try again.";
+    // Show specific backend message if it exists (e.g. "Pending Approval"), else fallback
+    if (err.message && err.message.length < 100) {
+      errorMsg.textContent = err.message;
+    } else {
+      errorMsg.textContent = "Invalid credentials. Please try again.";
+    }
   }
 }
 

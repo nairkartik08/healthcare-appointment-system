@@ -21,29 +21,40 @@ function connectWebSocket() {
     // depending on the backend config. Since we used ChannelInterceptor, we can pass it via STOMP headers
     const socket = new SockJS(`${BASE_URL}/ws`);
     stompClient = Stomp.over(socket);
-    
+
     // Disable debug logging for cleaner console
-    stompClient.debug = () => {};
+    stompClient.debug = () => { };
 
     stompClient.connect({ 'Authorization': 'Bearer ' + token }, function (frame) {
         console.log('Connected: ' + frame);
-        
+
         // Subscribe to user queue for private messages
         stompClient.subscribe('/user/queue/messages', function (message) {
             const chatMessage = JSON.parse(message.body);
-            // If the message is from the user we're currently chatting with, display it
-            if (chatMessage.senderId == currentChatUserId || chatMessage.senderId == currentUserId) {
-                appendMessage(chatMessage, chatMessage.senderId == currentUserId);
-            } else {
-                // Show notification / highlight contact
-                if (typeof showToast === 'function') {
+            const isSelf = chatMessage.senderId == currentUserId;
+            const isFromCurrentChat = chatMessage.senderId == currentChatUserId;
+            const isChatActive = document.getElementById('chat') && document.getElementById('chat').classList.contains('active');
+
+            // 1. Always append message if it's part of the current active conversation (or from self)
+            if (isFromCurrentChat || isSelf) {
+                appendMessage(chatMessage, isSelf);
+            }
+
+            // 2. Manage the Sidebar Red Dot (Badge)
+            if (!isSelf) {
+                // Show badge if we're not looking at the chat, or if message is from a different user
+                if (!isChatActive || !isFromCurrentChat) {
+                    const badge = document.getElementById('chatBadge');
+                    if (badge) badge.style.display = 'block';
+                }
+
+                // 3. Optional: Trigger toast if not looking at the chat
+                if (!isChatActive && typeof showToast === 'function') {
                     showToast(`New message from ${chatMessage.senderName}`, "info");
-                } else {
-                    alert(`New message from ${chatMessage.senderName}: ${chatMessage.content}`);
                 }
             }
         });
-    }, function(error) {
+    }, function (error) {
         console.error('STOMP connection error:', error);
         setTimeout(connectWebSocket, 5000);
     });
@@ -71,7 +82,7 @@ async function loadChatContacts() {
             // Check identity, prioritize actual name, then username, then email
             const displayName = contact.name || contact.username || contact.email || `User #${contact.id}`;
             div.innerHTML = `<strong>${displayName}</strong><br><small>${contact.role}</small>`;
-            
+
             div.onclick = () => {
                 // Highlight active
                 document.querySelectorAll(".contact-item").forEach(el => {
@@ -80,7 +91,7 @@ async function loadChatContacts() {
                 });
                 div.style.background = "rgba(255, 255, 255, 0.1)";
                 div.style.color = "var(--text-main)";
-                
+
                 openChat(contact.id, displayName);
             };
             contactsContainer.appendChild(div);
@@ -101,7 +112,7 @@ async function openChat(userId, userName) {
 
     document.getElementById("chatInput").disabled = false;
     document.getElementById("chatSendBtn").disabled = false;
-    
+
     // Clear current messages
     const chatMessages = document.getElementById("chatMessages");
     chatMessages.innerHTML = `<p class="text-muted text-center" style="margin-top: auto; margin-bottom: auto;">Loading history...</p>`;
@@ -110,16 +121,16 @@ async function openChat(userId, userName) {
     try {
         const history = await apiFetch(`/chat/history/${currentUserId}/${currentChatUserId}`);
         chatMessages.innerHTML = "";
-        
-        if(history.length === 0) {
-           chatMessages.innerHTML = `<p class="text-muted text-center" style="margin-top: auto; margin-bottom: auto;">No previous messages. Start the conversation!</p>`;
+
+        if (history.length === 0) {
+            chatMessages.innerHTML = `<p class="text-muted text-center" style="margin-top: auto; margin-bottom: auto;">No previous messages. Start the conversation!</p>`;
         }
-        
+
         history.forEach(msg => {
             appendMessage(msg, msg.senderId == currentUserId);
         });
-        
-    } catch(err) {
+
+    } catch (err) {
         chatMessages.innerHTML = `<p class="text-muted text-center" style="margin-top: auto; margin-bottom: auto;">Error loading history.</p>`;
     }
 }
@@ -127,17 +138,17 @@ async function openChat(userId, userName) {
 function appendMessage(message, isSelf) {
     const chatMessages = document.getElementById("chatMessages");
     // remove placeholder if exists
-    if(chatMessages.innerHTML.includes("No previous messages") || chatMessages.innerHTML.includes("Select a doctor") || chatMessages.innerHTML.includes("Select a patient")) {
+    if (chatMessages.innerHTML.includes("No previous messages") || chatMessages.innerHTML.includes("Select a doctor") || chatMessages.innerHTML.includes("Select a patient")) {
         chatMessages.innerHTML = "";
     }
-    
+
     const div = document.createElement("div");
     div.style.maxWidth = "70%";
     div.style.padding = "10px";
     div.style.borderRadius = "8px";
     div.style.marginBottom = "5px";
     div.style.wordWrap = "break-word";
-    
+
     if (isSelf) {
         // align right
         div.style.alignSelf = "flex-end";
@@ -149,10 +160,10 @@ function appendMessage(message, isSelf) {
         div.style.background = "var(--glass-border)";
         div.style.color = "var(--text-main)";
     }
-    
+
     // Add times logic if needed, simplify for now
     div.innerHTML = `<div>${message.content}</div>`;
-    
+
     chatMessages.appendChild(div);
     scrollToBottom();
 }
@@ -160,7 +171,7 @@ function appendMessage(message, isSelf) {
 function scrollToBottom() {
     const chatMessages = document.getElementById("chatMessages");
     if (!chatMessages) return;
-    
+
     // Use setTimeout to ensure the element has been rendered
     setTimeout(() => {
         chatMessages.scrollTop = chatMessages.scrollHeight;
@@ -170,7 +181,7 @@ function scrollToBottom() {
 function sendChatMessage() {
     const input = document.getElementById("chatInput");
     const content = input.value.trim();
-    
+
     if (content && stompClient && currentChatUserId) {
         const chatReq = {
             senderId: parseInt(currentUserId, 10),
@@ -178,7 +189,7 @@ function sendChatMessage() {
             senderName: currentUserName,
             content: content
         };
-        
+
         console.log("Sending chat request:", chatReq);
         const headers = { 'content-type': 'application/json' };
         stompClient.send("/app/chat", headers, JSON.stringify(chatReq));

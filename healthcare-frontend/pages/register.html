@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,40 +12,49 @@
             display: flex;
             gap: 1rem;
         }
+
         .form-row .input-group {
             flex: 1;
         }
+
         .role-fields {
             display: none;
             margin-top: 1rem;
             padding-top: 1rem;
-            border-top: 1px solid rgba(255,255,255,0.1);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
         }
+
         .role-fields.active {
             display: block;
         }
+
         .auth-card {
             max-height: 85vh;
             overflow-y: auto;
             width: 100%;
         }
+
         /* Custom scrollbar for form */
         .auth-card::-webkit-scrollbar {
             width: 8px;
         }
+
         .auth-card::-webkit-scrollbar-track {
-            background: rgba(255,255,255,0.05);
+            background: rgba(255, 255, 255, 0.05);
             border-radius: 4px;
         }
+
         .auth-card::-webkit-scrollbar-thumb {
             background: var(--border);
             border-radius: 4px;
         }
+
         .checkbox-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             gap: 0.5rem;
         }
+
         .checkbox-item {
             display: flex;
             align-items: center;
@@ -52,11 +62,13 @@
             font-size: 0.85rem;
             color: var(--text-muted);
         }
+
         .checkbox-item input {
             width: auto;
             margin: 0;
             accent-color: var(--primary);
         }
+
         .section-title {
             font-size: 1.1rem;
             color: var(--text-light);
@@ -64,12 +76,16 @@
         }
     </style>
 </head>
+
 <body>
 
     <div class="auth-wrapper" style="flex-direction: row-reverse;">
         <div class="auth-graphic">
-            <img src="../images/hero.png" alt="Digital Healthcare Abstract" class="auth-graphic-img" style="transform: scaleX(-1);">
-            <div class="auth-graphic-overlay" style="background: linear-gradient(135deg, rgba(3, 7, 18, 0.4) 0%, rgba(139, 92, 246, 0.2) 100%);"></div>
+            <img src="../images/hero.png" alt="Digital Healthcare Abstract" class="auth-graphic-img"
+                style="transform: scaleX(-1);">
+            <div class="auth-graphic-overlay"
+                style="background: linear-gradient(135deg, rgba(3, 7, 18, 0.4) 0%, rgba(139, 92, 246, 0.2) 100%);">
+            </div>
             <div class="auth-headline glass-container">
                 <h1>Join the<br>Network</h1>
                 <p>Register as a patient, doctor, or admin.</p>
@@ -83,208 +99,189 @@
 
                 <div id="registrationForm">
 
-                <div class="input-group">
-                    <label>Registration Type</label>
-                    <select id="role" onchange="toggleRoleFields()">
-                        <option value="PATIENT">Patient Account</option>
-                        <option value="CLINIC">Doctor Hub</option>
-                        <option value="ADMIN">Administrator</option>
-                    </select>
-                </div>
-
-                <div class="section-title">Core Details</div>
-                
-                <div class="input-group">
-                    <label>Full Name</label>
-                    <input type="text" id="fullName" placeholder="Enter full name" />
-                </div>
-                
-                <div class="input-group">
-                    <label>Email Address</label>
-                    <input type="email" id="email" placeholder="example@email.com" />
-                </div>
-
-                <div class="form-row">
                     <div class="input-group">
-                        <label>Password</label>
-                        <input type="password" id="password" placeholder="Strong password" />
-                    </div>
-                    <div class="input-group">
-                        <label>Confirm Password</label>
-                        <input type="password" id="confirmPassword" placeholder="Confirm password" />
-                    </div>
-                </div>
-                
-                <div class="form-row">
-                    <div class="input-group">
-                        <label>Mobile Number</label>
-                        <input type="tel" id="mobileNumber" placeholder="+1234567890" />
-                    </div>
-                    <div class="input-group">
-                        <label>Gender</label>
-                        <select id="gender">
-                            <option value="">Select Gender</option>
-                            <option value="Male">Male</option>
-                            <option value="Female">Female</option>
-                            <option value="Other">Other</option>
+                        <label>Registration Type</label>
+                        <select id="role" onchange="toggleRoleFields()">
+                            <option value="PATIENT">Patient Account</option>
+                            <option value="CLINIC">Doctor </option>
+                            <option value="ADMIN">Administrator</option>
                         </select>
                     </div>
-                </div>
 
-                <!-- Patient Specific Fields -->
-                <div id="fields-patient" class="role-fields active">
-                    <div class="section-title">Patient Profile info</div>
+                    <div class="section-title">Core Details</div>
+
+                    <div class="input-group">
+                        <label>Full Name</label>
+                        <input type="text" id="fullName" placeholder="Enter full name" />
+                    </div>
+
+                    <div class="input-group">
+                        <label>Email Address</label>
+                        <input type="email" id="email" placeholder="example@email.com" />
+                    </div>
+
                     <div class="form-row">
                         <div class="input-group">
-                            <label>Date of Birth</label>
-                            <input type="date" id="dob" />
+                            <label>Password</label>
+                            <input type="password" id="password" placeholder="Strong password" />
                         </div>
                         <div class="input-group">
-                            <label>Blood Group</label>
-                            <input type="text" id="bloodGroup" placeholder="e.g. O+, A-" />
+                            <label>Confirm Password</label>
+                            <input type="password" id="confirmPassword" placeholder="Confirm password" />
                         </div>
                     </div>
-                    <div class="input-group">
-                        <label>Address</label>
-                        <input type="text" id="address" placeholder="Residential Address" />
-                    </div>
-                    <div class="input-group">
-                        <label>Emergency Contact</label>
-                        <input type="tel" id="emergencyContact" placeholder="Emergency contact number" />
-                    </div>
-                    <div class="input-group">
-                        <label>Existing Diseases / Allergies</label>
-                        <textarea id="existingDiseases" placeholder="Any medical history..." rows="2"></textarea>
-                    </div>
-                    <div class="input-group">
-                        <label>Insurance Provider (Optional)</label>
-                        <input type="text" id="insuranceProvider" placeholder="Company Name / Policy" />
-                    </div>
-                </div>
 
-                <!-- Doctor Specific Fields -->
-                <div id="fields-doctor" class="role-fields">
-                    <div class="section-title">Professional Details</div>
                     <div class="form-row">
                         <div class="input-group">
-                            <label>Specialization</label>
-                            <select id="specialization" onchange="toggleOtherSpecialization()">
-                                <option value="">Select Specialization</option>
-                                <option value="Cardiologist">Cardiologist</option>
-                                <option value="Dermatologist">Dermatologist</option>
-                                <option value="Neurologist">Neurologist</option>
-                                <option value="Orthopedic">Orthopedic</option>
-                                <option value="Pediatrician">Pediatrician</option>
-                                <option value="Dentist">Dentist</option>
-                                <option value="Gynecologist">Gynecologist</option>
-                                <option value="Psychiatrist">Psychiatrist</option>
-                                <option value="ENT">ENT</option>
-                                <option value="General Physician">General Physician</option>
+                            <label>Mobile Number</label>
+                            <input type="tel" id="mobileNumber" placeholder="+1234567890" />
+                        </div>
+                        <div class="input-group">
+                            <label>Gender</label>
+                            <select id="gender">
+                                <option value="">Select Gender</option>
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
                                 <option value="Other">Other</option>
                             </select>
-                            <input type="text" id="otherSpecialization" placeholder="Specify other" style="display: none; margin-top: 0.5rem;" />
-                        </div>
-                        <div class="input-group">
-                            <label>Consultation Fee ($)</label>
-                            <input type="number" id="consultationFees" placeholder="e.g. 50" min="0" />
                         </div>
                     </div>
 
-                    <div class="form-row">
-                        <div class="input-group">
-                            <label>Qualification</label>
-                            <input type="text" id="qualification" placeholder="e.g. MBBS, MD" />
+                    <!-- Patient Specific Fields -->
+                    <div id="fields-patient" class="role-fields active">
+                        <div class="section-title">Patient Profile info</div>
+                        <div class="form-row">
+                            <div class="input-group">
+                                <label>Date of Birth</label>
+                                <input type="date" id="dob" />
+                            </div>
+                            <div class="input-group">
+                                <label>Blood Group</label>
+                                <input type="text" id="bloodGroup" placeholder="e.g. O+, A-" />
+                            </div>
                         </div>
                         <div class="input-group">
-                            <label>Years of Experience</label>
-                            <input type="number" id="experienceYears" placeholder="Years" min="0" />
+                            <label>Address</label>
+                            <input type="text" id="address" placeholder="Residential Address" />
+                        </div>
+                        <div class="input-group">
+                            <label>Emergency Contact</label>
+                            <input type="tel" id="emergencyContact" placeholder="Emergency contact number" />
+                        </div>
+                        <div class="input-group">
+                            <label>Existing Diseases / Allergies</label>
+                            <textarea id="existingDiseases" placeholder="Any medical history..." rows="2"></textarea>
+                        </div>
+                        <div class="input-group">
+                            <label>Insurance Provider (Optional)</label>
+                            <input type="text" id="insuranceProvider" placeholder="Company Name / Policy" />
                         </div>
                     </div>
 
-                    <div class="input-group">
-                        <label>Medical License Number</label>
-                        <input type="text" id="licenseNumber" placeholder="Example: MH-DOC-123456" />
-                        <small style="color: var(--primary); font-size: 0.8rem; margin-top: 5px; display: block;">
-                            Medical license number will be verified by the admin before account approval.
-                        </small>
+                    <!-- Doctor Specific Fields -->
+                    <div id="fields-doctor" class="role-fields">
+                        <div class="section-title">Professional Details</div>
+                        <div class="form-row">
+                            <div class="input-group">
+                                <label>Specialization</label>
+                                <select id="specialization" onchange="toggleOtherSpecialization()">
+                                    <option value="">Select Specialization</option>
+                                    <option value="Cardiologist">Cardiologist</option>
+                                    <option value="Dermatologist">Dermatologist</option>
+                                    <option value="Neurologist">Neurologist</option>
+                                    <option value="Orthopedic">Orthopedic</option>
+                                    <option value="Pediatrician">Pediatrician</option>
+                                    <option value="Dentist">Dentist</option>
+                                    <option value="Gynecologist">Gynecologist</option>
+                                    <option value="Psychiatrist">Psychiatrist</option>
+                                    <option value="ENT">ENT</option>
+                                    <option value="General Physician">General Physician</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                                <input type="text" id="otherSpecialization" placeholder="Specify other"
+                                    style="display: none; margin-top: 0.5rem;" />
+                            </div>
+                            <div class="input-group">
+                                <label>Consultation Fee ($)</label>
+                                <input type="number" id="consultationFees" placeholder="e.g. 50" min="0" />
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="input-group">
+                                <label>Qualification</label>
+                                <input type="text" id="qualification" placeholder="e.g. MBBS, MD" />
+                            </div>
+                            <div class="input-group">
+                                <label>Years of Experience</label>
+                                <input type="number" id="experienceYears" placeholder="Years" min="0" />
+                            </div>
+                        </div>
+
+                        <div class="input-group">
+                            <label>Medical License Number</label>
+                            <input type="text" id="licenseNumber" placeholder="Example: MH-DOC-123456" />
+                            <small style="color: var(--primary); font-size: 0.8rem; margin-top: 5px; display: block;">
+                                Medical license number will be verified by the admin before account approval.
+                            </small>
+                        </div>
+
+
+                        <div class="input-group">
+                            <label>Available Days</label>
+                            <div class="checkbox-grid">
+                                <label class="checkbox-item"><input type="checkbox" name="availDays" value="Monday">
+                                    Monday</label>
+                                <label class="checkbox-item"><input type="checkbox" name="availDays" value="Tuesday">
+                                    Tuesday</label>
+                                <label class="checkbox-item"><input type="checkbox" name="availDays" value="Wednesday">
+                                    Wednesday</label>
+                                <label class="checkbox-item"><input type="checkbox" name="availDays" value="Thursday">
+                                    Thursday</label>
+                                <label class="checkbox-item"><input type="checkbox" name="availDays" value="Friday">
+                                    Friday</label>
+                                <label class="checkbox-item"><input type="checkbox" name="availDays" value="Saturday">
+                                    Saturday</label>
+                                <label class="checkbox-item"><input type="checkbox" name="availDays" value="Sunday">
+                                    Sunday</label>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="input-group">
+                                <label>Time Slots (From)</label>
+                                <input type="time" id="timeFrom" />
+                            </div>
+                            <div class="input-group">
+                                <label>Time Slots (To)</label>
+                                <input type="time" id="timeTo" />
+                            </div>
+                        </div>
+
+
                     </div>
 
-                    <div class="input-group">
-                        <label>Hospital / Clinic Name</label>
-                        <input type="text" id="hospitalName" placeholder="Primary Hospital" value="Central Hospital" />
-                    </div>
-
-                    <div class="input-group">
-                        <label>Hospital Address</label>
-                        <input type="text" id="clinicAddress" placeholder="Full address" />
-                    </div>
-
-                    <div class="input-group">
-                        <label>Available Days</label>
-                        <div class="checkbox-grid">
-                            <label class="checkbox-item"><input type="checkbox" name="availDays" value="Monday"> Monday</label>
-                            <label class="checkbox-item"><input type="checkbox" name="availDays" value="Tuesday"> Tuesday</label>
-                            <label class="checkbox-item"><input type="checkbox" name="availDays" value="Wednesday"> Wednesday</label>
-                            <label class="checkbox-item"><input type="checkbox" name="availDays" value="Thursday"> Thursday</label>
-                            <label class="checkbox-item"><input type="checkbox" name="availDays" value="Friday"> Friday</label>
-                            <label class="checkbox-item"><input type="checkbox" name="availDays" value="Saturday"> Saturday</label>
-                            <label class="checkbox-item"><input type="checkbox" name="availDays" value="Sunday"> Sunday</label>
+                    <!-- Admin Specific Fields -->
+                    <div id="fields-admin" class="role-fields">
+                        <div class="section-title">Admin Configuration</div>
+                        <div class="input-group">
+                            <label>Department</label>
+                            <input type="text" id="department" placeholder="e.g. IT, Management" />
+                        </div>
+                        <div class="input-group">
+                            <label>Admin Secret Code (Strict: KNADMIN2026)</label>
+                            <input type="password" id="adminCode" placeholder="Enter KNADMIN2026" />
                         </div>
                     </div>
 
-                    <div class="form-row">
-                        <div class="input-group">
-                            <label>Time Slots (From)</label>
-                            <input type="time" id="timeFrom" />
-                        </div>
-                        <div class="input-group">
-                            <label>Time Slots (To)</label>
-                            <input type="time" id="timeTo" />
-                        </div>
-                    </div>
-
-                    <div class="section-title" style="margin-top: 1rem;">Proof Documents (Required)</div>
-                    <div class="form-row">
-                        <div class="input-group">
-                            <label>Doctor Profile Photo</label>
-                            <input type="file" id="profilePhoto" accept="image/*" />
-                        </div>
-                        <div class="input-group">
-                            <label>Medical License Certificate</label>
-                            <input type="file" id="licenseCertificate" accept=".pdf,.jpg,.png" />
-                        </div>
-                    </div>
-                    <div class="form-row">
-                        <div class="input-group">
-                            <label>Degree Certificate</label>
-                            <input type="file" id="degreeCertificate" accept=".pdf,.jpg,.png" />
-                        </div>
-                        <div class="input-group">
-                            <label>Hospital ID Card</label>
-                            <input type="file" id="hospitalIdCard" accept=".pdf,.jpg,.png" />
-                        </div>
-                    </div>
                 </div>
-
-                <!-- Admin Specific Fields -->
-                <div id="fields-admin" class="role-fields">
-                    <div class="section-title">Admin Configuration</div>
-                    <div class="input-group">
-                        <label>Department</label>
-                        <input type="text" id="department" placeholder="e.g. IT, Management" />
-                    </div>
-                    <div class="input-group">
-                        <label>Admin Secret Code (Strict: KNADMIN2026)</label>
-                        <input type="password" id="adminCode" placeholder="Enter KNADMIN2026" />
-                    </div>
-                </div>
-
-                </div>
-                <button id="registerBtn" class="btn-primary" onclick="submitRegistration()" style="margin-top: 1.5rem;">Create Account</button>
+                <button id="registerBtn" class="btn-primary" onclick="submitRegistration()"
+                    style="margin-top: 1.5rem;">Create Account</button>
 
                 <div id="otp-section" style="display: none; margin-top: 1rem;">
                     <div class="section-title">Verify your Email</div>
-                    <p class="subtitle" style="font-size: 0.85rem; margin-bottom: 1rem;">We've sent a 6-digit code to your email.</p>
+                    <p class="subtitle" style="font-size: 0.85rem; margin-bottom: 1rem;">We've sent a 6-digit code to
+                        your email.</p>
                     <div class="input-group">
                         <label>OTP Code</label>
                         <input type="text" id="otpCode" placeholder="Enter 6-digit OTP" autocomplete="off" />
@@ -298,7 +295,7 @@
                 <p id="loginLinkTxt" class="text-center" style="margin-top: 1rem;">
                     Already configured? <a href="login.html">Log in here</a>
                 </p>
-                
+
                 <div id="errorMsg" class="status-msg error-msg" style="margin-top: 1rem; display: none;"></div>
                 <div id="successMsg" class="status-msg success-msg" style="margin-top: 1rem; display: none;"></div>
             </div>
@@ -322,7 +319,7 @@
                 document.getElementById("fields-admin").classList.add("active");
             }
         }
-        
+
         document.addEventListener("DOMContentLoaded", () => {
             const now = new Date();
             const year = now.getFullYear();
@@ -332,7 +329,7 @@
             const dobInput = document.getElementById("dob");
             if (dobInput) dobInput.max = localToday;
         });
-        
+
         function toggleOtherSpecialization() {
             const spec = document.getElementById("specialization").value;
             const otherSpec = document.getElementById("otherSpecialization");
@@ -346,7 +343,7 @@
 
         const errorMsg = document.getElementById("errorMsg");
         const successMsg = document.getElementById("successMsg");
-        
+
         const handleMsg = (el) => {
             if (el.textContent.trim() !== "") {
                 el.style.display = 'flex';
@@ -356,7 +353,7 @@
                 el.classList.remove('show');
             }
         };
-        
+
         const observer = new MutationObserver((mutations) => {
             mutations.forEach((mutation) => {
                 if (mutation.type === 'childList') {
@@ -364,9 +361,10 @@
                 }
             });
         });
-        
+
         observer.observe(errorMsg, { childList: true });
         observer.observe(successMsg, { childList: true });
     </script>
 </body>
+
 </html>

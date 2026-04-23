@@ -59,6 +59,10 @@ function switchSection(sectionId) {
         if (sectionId === 'reviews') {
             loadDoctorReviews();
         }
+        if (sectionId === 'chat') {
+            const badge = document.getElementById('chatBadge');
+            if (badge) badge.style.display = 'none';
+        }
     }
 }
 
@@ -90,6 +94,12 @@ async function loadDoctorProfile() {
         document.getElementById('docAddress').value = doctorData.clinicAddress || '';
         document.getElementById('docDays').value = doctorData.availableDays || '';
         document.getElementById('docSlots').value = doctorData.availableTimeSlots || '';
+        
+        // Set default notification title
+        const campTitleInput = document.getElementById('campTitle');
+        if (campTitleInput) {
+            campTitleInput.value = `Dr. ${doctorData.name}`;
+        }
         
     } catch (err) {
         console.error("Failed to load doctor profile:", err);
@@ -393,12 +403,14 @@ loadDoctorAppointments = async function() {
 };
 
 async function createCampaign() {
-    const campaignName = document.getElementById('campName').value.trim();
+    const campNameInput = document.getElementById('campName');
+    const campaignName = campNameInput ? campNameInput.value.trim() : "Direct Notification";
+    
     const notificationTitle = document.getElementById('campTitle').value.trim();
     const message = document.getElementById('campMessage').value.trim();
 
-    if (!campaignName || !notificationTitle || !message) {
-        return alert("Please fill all campaign fields.");
+    if (!notificationTitle || !message) {
+        return alert("Please fill all notification fields.");
     }
 
     const checkboxes = document.querySelectorAll('.patient-checkbox:checked');

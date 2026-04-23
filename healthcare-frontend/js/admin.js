@@ -334,9 +334,6 @@ function renderDoctors() {
             <div style="color: var(--primary-color); font-size: 0.9rem; margin-bottom: 0.5rem;">${doc.specialization} | Exp: ${doc.experienceYears || 0}y</div>
             <div style="font-size: 0.9rem; margin-bottom: 1rem; color: var(--text-muted); line-height: 1.5;">
                 <strong>License:</strong> ${doc.licenseNumber || 'N/A'}<br>
-                ${doc.licenseCertificateUrl ? `<a href="${BASE_URL}/${doc.licenseCertificateUrl}" target="_blank" style="color: var(--primary); font-size:0.85rem;">📄 License</a> | ` : ''}
-                ${doc.degreeUrl ? `<a href="${BASE_URL}/${doc.degreeUrl}" target="_blank" style="color: var(--primary); font-size:0.85rem;">📄 Degree</a> | ` : ''}
-                ${doc.hospitalIdUrl ? `<a href="${BASE_URL}/${doc.hospitalIdUrl}" target="_blank" style="color: var(--primary); font-size:0.85rem;">📄 ID</a>` : ''}
             </div>
             <div style="display: flex; gap: 0.5rem;">
                 ${status === 'PENDING_APPROVAL' ? `
