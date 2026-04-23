@@ -384,9 +384,14 @@ function selectSlot(slotId, dateStr, timeStr) {
     const dobInput = document.getElementById('profileDob');
     let age = '';
     if (dobInput && dobInput.value) {
-        const birthYear = new Date(dobInput.value).getFullYear();
-        if(!isNaN(birthYear)) {
-            age = new Date().getFullYear() - birthYear;
+        const birthDate = new Date(dobInput.value);
+        if(!isNaN(birthDate.getTime())) {
+            let calculatedAge = new Date().getFullYear() - birthDate.getFullYear();
+            const m = new Date().getMonth() - birthDate.getMonth();
+            if (m < 0 || (m === 0 && new Date().getDate() < birthDate.getDate())) {
+                calculatedAge--;
+            }
+            age = Math.max(1, calculatedAge);
         }
     }
     document.getElementById('bookingAge').value = age;
