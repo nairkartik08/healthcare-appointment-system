@@ -22,18 +22,24 @@
         </div>
 
         <div class="auth-form-container">
-            <div class="auth-card glass-container">
+            <div class="auth-card glass-container shimmer" id="tiltCard">
                 <h2>Welcome Back</h2>
                 <p class="subtitle">Securely sign in to your healthcare profile.</p>
 
                 <div class="input-group">
-                    <label>Email</label>
-                    <input type="email" id="email" placeholder="Enter your email" />
+                    <label>Email Address</label>
+                    <div class="input-with-icon">
+                        <input type="email" id="email" placeholder="Enter your email" />
+                        <i class="ph ph-envelope-simple"></i>
+                    </div>
                 </div>
 
                 <div class="input-group">
                     <label>Password</label>
-                    <input type="password" id="password" placeholder="Enter your password" />
+                    <div class="input-with-icon">
+                        <input type="password" id="password" placeholder="Enter your password" />
+                        <i class="ph ph-lock-simple"></i>
+                    </div>
                 </div>
 
                 <button class="btn-primary" onclick="login()">Log In Securely</button>
