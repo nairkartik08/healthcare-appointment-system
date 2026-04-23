@@ -760,7 +760,7 @@ async function checkSymptoms() {
     const resultBox = document.getElementById('aiTriageResult');
     const messageEl = document.getElementById('aiTriageMessage');
 
-    btn.textContent = "Gemini is thinking...";
+    btn.textContent = "Consulting AI Medical Guide...";
     btn.disabled = true;
     resultBox.style.display = 'none';
 
