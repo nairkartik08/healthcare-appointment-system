@@ -11,8 +11,9 @@ import java.util.List;
 @Repository
 public interface ReviewRepository extends JpaRepository<Review, Long> {
     List<Review> findByDoctorIdOrderByCreatedAtDesc(Long doctorId);
+    boolean existsByAppointmentId(Long appointmentId);
     boolean existsByPatientIdAndDoctorId(Long patientId, Long doctorId);
 
-    @Query("SELECT r.doctor.id FROM Review r WHERE r.patient.id = :patientId")
-    List<Long> findDoctorIdsByPatientId(@Param("patientId") Long patientId);
+    @Query("SELECT r.appointment.id FROM Review r WHERE r.patient.id = :patientId")
+    List<Long> findAppointmentIdsByPatientId(@Param("patientId") Long patientId);
 }

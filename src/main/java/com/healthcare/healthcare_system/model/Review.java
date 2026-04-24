@@ -28,6 +28,10 @@ public class Review {
     @JoinColumn(name = "doctor_id")
     private Doctor doctor;
 
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "appointment_id")
+    private Appointment appointment;
+
     private LocalDateTime createdAt = LocalDateTime.now();
     
     public Long getId() { return id; }
@@ -40,6 +44,8 @@ public class Review {
     public void setPatient(Patient patient) { this.patient = patient; }
     public Doctor getDoctor() { return doctor; }
     public void setDoctor(Doctor doctor) { this.doctor = doctor; }
+    public Appointment getAppointment() { return appointment; }
+    public void setAppointment(Appointment appointment) { this.appointment = appointment; }
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
 }

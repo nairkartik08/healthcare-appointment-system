@@ -5,9 +5,11 @@ import com.healthcare.healthcare_system.dto.ReviewDTO;
 import com.healthcare.healthcare_system.model.Doctor;
 import com.healthcare.healthcare_system.model.Patient;
 import com.healthcare.healthcare_system.model.Review;
+import com.healthcare.healthcare_system.repository.AppointmentRepository;
 import com.healthcare.healthcare_system.repository.DoctorRepository;
 import com.healthcare.healthcare_system.repository.PatientRepository;
 import com.healthcare.healthcare_system.repository.ReviewRepository;
+import com.healthcare.healthcare_system.model.Appointment;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -32,10 +34,20 @@ public class ReviewController {
     @Autowired
     private PatientRepository patientRepository;
 
+    @Autowired
+    private AppointmentRepository appointmentRepository;
+
     @PostMapping("/add")
     public ResponseEntity<?> addReview(@RequestBody ReviewRequest request) {
         try {
-            if (reviewRepository.existsByPatientIdAndDoctorId(request.getPatientId(), request.getDoctorId())) {
+            if (request.getAppointmentId() != null && reviewRepository.existsByAppointmentId(request.getAppointmentId())) {
+                Map<String, String> response = new HashMap<>();
+                response.put("message", "This appointment has already been reviewed.");
+                return ResponseEntity.badRequest().body(response);
+            }
+            
+            // Fallback for old check if appointment ID isn't provided (for backward compatibility)
+            if (request.getAppointmentId() == null && reviewRepository.existsByPatientIdAndDoctorId(request.getPatientId(), request.getDoctorId())) {
                 Map<String, String> response = new HashMap<>();
                 response.put("message", "You have already reviewed this doctor.");
                 return ResponseEntity.badRequest().body(response);
@@ -43,6 +55,7 @@ public class ReviewController {
 
             Patient patient = patientRepository.findById(request.getPatientId()).orElse(null);
             Doctor doctor = doctorRepository.findById(request.getDoctorId()).orElse(null);
+            Appointment appointment = request.getAppointmentId() != null ? appointmentRepository.findById(request.getAppointmentId()).orElse(null) : null;
 
             if (patient == null || doctor == null) {
                 Map<String, String> response = new HashMap<>();
@@ -53,6 +66,7 @@ public class ReviewController {
             Review review = new Review();
             review.setPatient(patient);
             review.setDoctor(doctor);
+            review.setAppointment(appointment);
             review.setRating(request.getRating());
             review.setComment(request.getComment());
             review.setCreatedAt(LocalDateTime.now());
@@ -94,9 +108,9 @@ public class ReviewController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/patient/{patientId}/doctors")
-    public ResponseEntity<List<Long>> getReviewedDoctorIds(@PathVariable Long patientId) {
-        List<Long> doctorIds = reviewRepository.findDoctorIdsByPatientId(patientId);
-        return ResponseEntity.ok(doctorIds);
+    @GetMapping("/patient/{patientId}/appointments")
+    public ResponseEntity<List<Long>> getReviewedAppointmentIds(@PathVariable Long patientId) {
+        List<Long> appointmentIds = reviewRepository.findAppointmentIdsByPatientId(patientId);
+        return ResponseEntity.ok(appointmentIds);
     }
 }

@@ -12,7 +12,7 @@ let appState = {
     invoices: [],
     records: [],
     prescriptions: [],
-    reviewedDoctorIds: new Set()
+    reviewedAppointmentIds: new Set()
 };
 
 // --- Initialization ---
@@ -130,13 +130,13 @@ async function updateProfile() {
 
 async function loadAppointments() {
     try {
-        const [appts, reviewedIds] = await Promise.all([
+        const [appts, reviewedApptIds] = await Promise.all([
             apiFetch(`/patient/appointments/${currentUser.patientId}`),
-            apiFetch(`/reviews/patient/${currentUser.patientId}/doctors`)
+            apiFetch(`/reviews/patient/${currentUser.patientId}/appointments`)
         ]);
         appState.appointments = appts;
-        if (reviewedIds) {
-            appState.reviewedDoctorIds = new Set(reviewedIds);
+        if (reviewedApptIds) {
+            appState.reviewedAppointmentIds = new Set(reviewedApptIds);
         }
         renderAppointments();
     } catch (err) {
@@ -222,10 +222,10 @@ function renderAppointments() {
         if (app.status === 'BOOKED') {
             actionBtn = `<button class="btn-outline btn-danger btn-small" onclick="cancelAppointment(${app.id})">Cancel</button>`;
         } else if (app.status === 'COMPLETED' && app.doctor) {
-            if (appState.reviewedDoctorIds.has(app.doctor.id)) {
+            if (appState.reviewedAppointmentIds.has(app.id)) {
                 actionBtn = `<span class="badge" style="color: var(--success-color); border: 1px solid var(--glass-border); padding: 0.3rem 0.6rem; border-radius: 4px; font-size: 0.8rem; font-weight: 500; background: rgba(34, 197, 94, 0.1);">⭐ Reviewed</span>`;
             } else {
-                actionBtn = `<button class="btn-outline btn-success btn-small" onclick="openReviewModal(${app.doctor.id}, '${app.doctor.name}')">Leave Review</button>`;
+                actionBtn = `<button class="btn-outline btn-success btn-small" onclick="openReviewModal(${app.doctor.id}, '${app.doctor.name}', ${app.id})">Leave Review</button>`;
             }
         }
         
@@ -550,9 +550,9 @@ function renderNotifications(notifications) {
         
         div.onclick = async () => {
             if (!notif.isRead) {
-                await markNotificationRead(notif.id);
-                notif.isRead = true; // Optimistic update
-                renderNotifications(notifications); // Re-render logic
+                notif.isRead = true; // Optimistic update: Do this first!
+                renderNotifications(notifications); // Refresh UI immediately
+                await markNotificationRead(notif.id); // Then sync with server
             }
         };
 
@@ -697,8 +697,9 @@ async function downloadPrescription(id) {
 }
 
 // --- Review Logic ---
-function openReviewModal(doctorId, doctorName) {
+function openReviewModal(doctorId, doctorName, appointmentId) {
     document.getElementById('reviewDoctorId').value = doctorId;
+    document.getElementById('reviewAppointmentId').value = appointmentId;
     document.getElementById('reviewDoctorName').textContent = doctorName;
     document.getElementById('reviewRating').value = '5';
     document.getElementById('reviewComment').value = '';
@@ -711,6 +712,7 @@ function closeReviewModal() {
 
 async function submitReview() {
     const doctorId = document.getElementById('reviewDoctorId').value;
+    const appointmentId = document.getElementById('reviewAppointmentId').value;
     const rating = document.getElementById('reviewRating').value;
     const comment = document.getElementById('reviewComment').value.trim();
 
@@ -722,6 +724,7 @@ async function submitReview() {
             body: JSON.stringify({
                 patientId: currentUser.patientId,
                 doctorId: parseInt(doctorId),
+                appointmentId: parseInt(appointmentId),
                 rating: parseInt(rating),
                 comment: comment
             })
@@ -731,7 +734,7 @@ async function submitReview() {
             alert(response.error);
         } else {
             alert("Review submitted successfully! Thank you.");
-            appState.reviewedDoctorIds.add(parseInt(doctorId));
+            appState.reviewedAppointmentIds.add(parseInt(appointmentId));
             renderAppointments();
         }
         closeReviewModal();
