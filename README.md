@@ -17,11 +17,22 @@
 [![WebSocket](https://img.shields.io/badge/WebSocket-Real--time-blue?style=for-the-badge)](https://spring.io/guides/gs/messaging-stomp-websocket/)
 [![Gemini AI](https://img.shields.io/badge/Gemini-AI%20Powered-8E75B2?style=for-the-badge&logo=google)](https://ai.google.dev/)
 
+<br/><br/>
+
+### 🌐 Live Deployments
+
+| Component | Platform | Live URL |
+| :--- | :--- | :--- |
+| **Frontend Application** | **Vercel** | [![Vercel](https://img.shields.io/badge/Live_Site-Vercel-black?style=for-the-badge&logo=vercel)](https://healthcare-appointment-system-healt.vercel.app/) [healthcare-appointment-system-healt.vercel.app](https://healthcare-appointment-system-healt.vercel.app/) |
+| **Backend API Service** | **Render** | [![Render](https://img.shields.io/badge/API_Server-Render-46E3B7?style=for-the-badge&logo=render&logoColor=white)](https://healthcare-appointment-system-1-eb9c.onrender.com) [healthcare-appointment-system-1-eb9c.onrender.com](https://healthcare-appointment-system-1-eb9c.onrender.com) |
+
 </div>
 
 ---
 
 ## 📋 Table of Contents
+
+- [Live Deployments](#-live-deployments)
 
 - [Overview](#-overview)
 - [Features](#-features)
